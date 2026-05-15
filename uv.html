@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UV MAP EDITOR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&display=swap');
+
+  :root {
+    --bg: #0a0c0f;
+    --panel: #0f1318;
+    --border: #1e2530;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --text: #c8d8e8;
+    --muted: #4a5a6a;
+    --selected: rgba(0,229,255,0.15);
+    --hover: rgba(0,229,255,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+    height: 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .logo span { color: var(--accent2); }
+
+  .header-btns { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--accent);
+    transform: translateX(-100%);
+    transition: transform 0.2s;
+    opacity: 0.1;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:hover::before { transform: translateX(0); }
+
+  .btn-primary { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { border-color: var(--accent2); color: var(--accent2); }
+  .btn-danger:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn-danger::before { background: var(--accent2); }
+  .btn-success { border-color: var(--accent3); color: var(--accent3); }
+  .btn-success:hover { border-color: var(--accent3); color: var(--accent3); }
+  .btn-success::before { background: var(--accent3); }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 220px 1fr 1fr;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-section {
+    border-bottom: 1px solid var(--border);
+    padding: 12px;
+  }
+
+  .sidebar-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sidebar-title::before {
+    content: '';
+    width: 3px; height: 10px;
+    background: var(--accent);
+  }
+
+  .face-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+
+  .face-list::-webkit-scrollbar { width: 4px; }
+  .face-list::-webkit-scrollbar-track { background: transparent; }
+  .face-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .face-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--muted);
+    transition: all 0.1s;
+    user-select: none;
+  }
+
+  .face-item:hover { background: var(--hover); color: var(--text); }
+  .face-item.selected { background: var(--selected); color: var(--accent); }
+
+  .face-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    flex-shrink: 0;
+  }
+
+  .face-item.selected .face-dot { background: var(--accent); }
+
+  .ops-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .ops-grid .btn { font-size: 10px; padding: 6px 4px; text-align: center; }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 3px 0;
+    color: var(--muted);
+  }
+
+  .stat-row span:last-child { color: var(--text); }
+
+  /* ── 3D VIEW ── */
+  .viewport {
+    position: relative;
+    background: #070a0d;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+
+  .viewport-label {
+    position: absolute;
+    top: 12px; left: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #three-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  /* ── UV CANVAS ── */
+  .uv-view {
+    position: relative;
+    background: #05080b;
+    overflow: hidden;
+  }
+
+  .uv-view-label {
+    position: absolute;
+    top: 12px; left: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #uv-canvas {
+    display: block;
+  }
+
+  /* ── STATUS BAR ── */
+  .statusbar {
+    height: 26px;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 24px;
+    font-size: 10px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .statusbar .status-item { display: flex; align-items: center; gap: 6px; }
+  .statusbar .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent3); }
+
+  /* ── DROP ZONE ── */
+  .drop-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(10,12,15,0.92);
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .drop-overlay.active { opacity: 1; pointer-events: all; }
+
+  .drop-icon { font-size: 48px; opacity: 0.4; }
+  .drop-text { font-family: 'Rajdhani', sans-serif; font-size: 18px; letter-spacing: 3px; color: var(--accent); }
+  .drop-sub { font-size: 11px; color: var(--muted); }
+
+  /* crosshair grid on UV */
+  .uv-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  /* Corner accent */
+  .corner-tl, .corner-br {
+    position: absolute;
+    width: 16px; height: 16px;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .corner-tl { top: 8px; left: 8px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); opacity: 0.5; }
+  .corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); opacity: 0.5; }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    font-size: 10px;
+    color: var(--muted);
+    z-index: 4;
+    text-align: right;
+    line-height: 1.7;
+    pointer-events: none;
+  }
+
+  select {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 4px 8px;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  select:focus { outline: none; border-color: var(--accent); }
+
+  label { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    outline: none;
+    margin-top: 6px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    background: var(--accent);
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  .range-row { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+  .range-val { font-size: 10px; color: var(--accent); }
+
+  .btn-toggle { border-color: var(--border); color: var(--muted); }
+  .btn-toggle.active { border-color: var(--accent3); color: var(--accent3); background: rgba(127,255,107,0.08); }
+  .btn-toggle.active::before { background: var(--accent3); }
+
+  /* texture overlay opacity slider row */
+  .overlay-controls { margin-top: 8px; display: none; }
+  .overlay-controls.visible { display: block; }
+
+  /* ── DISGUISE VALIDATION ── */
+  .dsg-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px; letter-spacing: 2px;
+    color: #e8e0ff; opacity: 0.7;
+    margin-left: 6px;
+  }
+  .dsg-badge::before {
+    content: ''; width: 6px; height: 6px;
+    background: #9b6dff; border-radius: 50%;
+  }
+
+  .validation-panel {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 8px;
+    margin-top: 8px;
+    font-size: 10px;
+    line-height: 1.8;
+  }
+
+  .v-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 2px 0;
+  }
+  .v-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .v-dot.pass { background: var(--accent3); box-shadow: 0 0 4px var(--accent3); }
+  .v-dot.fail { background: var(--accent2); box-shadow: 0 0 4px var(--accent2); }
+  .v-dot.warn { background: #ffd700; box-shadow: 0 0 4px #ffd700; }
+  .v-dot.idle { background: var(--border); }
+  .v-label { color: var(--muted); flex: 1; }
+  .v-label.fail { color: var(--accent2); }
+  .v-label.pass { color: var(--accent3); }
+  .v-label.warn { color: #ffd700; }
+
+  /* out-of-bounds UV highlight drawn on canvas — no CSS needed, just note */
+  .dsg-info-box {
+    margin-top: 8px;
+    padding: 7px 8px;
+    background: rgba(155,109,255,0.07);
+    border-left: 2px solid #9b6dff;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">UV<span>/</span>EDIT</div>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px">FOR DISGUISE</div>
+  <div class="header-btns">
+    <label class="btn btn-primary" style="cursor:pointer">
+      LOAD OBJ
+      <input type="file" accept=".obj" id="file-input" style="display:none">
+    </label>
+    <button class="btn" id="btn-load-demo">DEMO MODEL</button>
+    <button class="btn btn-danger" id="btn-flip-u">FLIP U</button>
+    <button class="btn btn-danger" id="btn-flip-v">FLIP V</button>
+    <button class="btn" id="btn-normalise">NORMALISE UVs</button>
+    <button class="btn" id="btn-separate">SEPARATE BY FACE</button>
+    <button class="btn btn-success" id="btn-export">EXPORT OBJ</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Model Info</div>
+      <div class="stat-row"><span>Vertices</span><span id="stat-verts">—</span></div>
+      <div class="stat-row"><span>Faces</span><span id="stat-faces">—</span></div>
+      <div class="stat-row"><span>UV Coords</span><span id="stat-uvs">—</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">UV Operations</div>
+      <div class="ops-grid">
+        <button class="btn btn-danger" id="btn-flip-u2">FLIP U</button>
+        <button class="btn btn-danger" id="btn-flip-v2">FLIP V</button>
+        <button class="btn" id="btn-rotate-uv">ROTATE 90°</button>
+        <button class="btn" id="btn-reset-uv">RESET UVs</button>
+      </div>
+      <button class="btn" id="btn-normalise2" style="width:100%;margin-top:6px">NORMALISE UVs</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">disguise Validation <span class="dsg-badge">DESIGNER</span></div>
+      <div class="validation-panel">
+        <div class="v-row"><div class="v-dot idle" id="v-dot-range"></div><span class="v-label" id="v-label-range">UVs in 0–1 range</span></div>
+        <div class="v-row"><div class="v-dot idle" id="v-dot-norm"></div><span class="v-label" id="v-label-norm">Fills UV space (normalised)</span></div>
+        <div class="v-row"><div class="v-dot idle" id="v-dot-tri"></div><span class="v-label" id="v-label-tri">Triangulated mesh</span></div>
+        <div class="v-row"><div class="v-dot idle" id="v-dot-uv"></div><span class="v-label" id="v-label-uv">All faces have UVs</span></div>
+        <div class="v-row"><div class="v-dot idle" id="v-dot-overlap"></div><span class="v-label" id="v-label-overlap">No UV overlaps</span></div>
+      </div>
+      <div class="dsg-info-box" id="dsg-hint">Load a mesh to validate for disguise Designer.</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Selection</div>
+      <label>Select faces</label>
+      <select id="face-select-mode">
+        <option value="all">All Faces</option>
+        <option value="selected">Selected Only</option>
+      </select>
+      <div style="margin-top:8px">
+        <label>UV Scale</label>
+        <div class="range-row">
+          <input type="range" id="uv-scale" min="0.1" max="3" step="0.05" value="1">
+          <span class="range-val" id="uv-scale-val">1.00</span>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label>UV Offset U</label>
+        <div class="range-row">
+          <input type="range" id="uv-offset-u" min="-1" max="1" step="0.01" value="0">
+          <span class="range-val" id="uv-offset-u-val">0.00</span>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label>UV Offset V</label>
+        <div class="range-row">
+          <input type="range" id="uv-offset-v" min="-1" max="1" step="0.01" value="0">
+          <span class="range-val" id="uv-offset-v-val">0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">UV View</div>
+      <div class="ops-grid">
+        <button class="btn btn-toggle" id="btn-checker">CHECKER</button>
+        <button class="btn btn-toggle" id="btn-overlay-toggle">TEXTURE</button>
+      </div>
+      <div class="overlay-controls" id="overlay-controls">
+        <label style="margin-top:8px;display:block">
+          <input type="file" accept="image/*" id="texture-input" style="display:none">
+          <span class="btn btn-primary" style="display:block;text-align:center;cursor:pointer;margin-top:6px" id="btn-load-texture">LOAD IMAGE</span>
+        </label>
+        <div style="margin-top:8px">
+          <label>Opacity</label>
+          <div class="range-row">
+            <input type="range" id="overlay-opacity" min="0" max="1" step="0.05" value="0.6">
+            <span class="range-val" id="overlay-opacity-val">0.60</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn btn-success" id="btn-export-png" style="width:100%">EXPORT UV PNG</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div class="sidebar-title">Faces <span id="face-count-label" style="color:var(--muted);font-size:10px"></span></div>
+      <div class="face-list" id="face-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Export Options</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <input type="checkbox" id="chk-flip-yz" style="accent-color:var(--accent)">
+        <label for="chk-flip-yz" style="cursor:pointer;color:var(--text)">Flip YZ axis <span style="color:var(--muted)">(Z-up → Y-up)</span></label>
+      </div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:8px;line-height:1.5">
+        Enable if source is 3ds Max / Z-up app.<br>
+        Normals & materials stripped automatically.
+      </div>
+      <button class="btn btn-success" id="btn-separate2" style="width:100%;margin-bottom:6px">SEPARATE BY FACE</button>
+      <button class="btn btn-success" id="btn-export2" style="width:100%">EXPORT FOR DISGUISE</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Snap to Grid</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <label style="flex:1">Divisions</label>
+        <select id="snap-divisions" style="width:80px">
+          <option value="4">4×4</option>
+          <option value="8" selected>8×8</option>
+          <option value="16">16×16</option>
+          <option value="32">32×32</option>
+          <option value="64">64×64</option>
+        </select>
+      </div>
+      <button class="btn" id="btn-snap-grid" style="width:100%">SNAP UVs TO GRID</button>
+      <div style="font-size:9px;color:var(--muted);margin-top:6px;line-height:1.5">Required for LED panels — UV shells must align with no gaps.</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Template Resolution</div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:8px;line-height:1.5">Calculate disguise screen resolution from physical dimensions.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+        <div>
+          <label>Width (m)</label>
+          <input type="number" id="phys-w" placeholder="e.g. 4.8" step="0.1" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-family:inherit;font-size:10px;margin-top:3px">
+        </div>
+        <div>
+          <label>Height (m)</label>
+          <input type="number" id="phys-h" placeholder="e.g. 2.7" step="0.1" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-family:inherit;font-size:10px;margin-top:3px">
+        </div>
+      </div>
+      <label>Pixel pitch (mm)</label>
+      <input type="number" id="pixel-pitch" placeholder="e.g. 2.6" step="0.1" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-family:inherit;font-size:10px;margin-top:3px;margin-bottom:6px">
+      <button class="btn btn-primary" id="btn-calc-template" style="width:100%;margin-bottom:6px">CALCULATE</button>
+      <div id="template-result" style="font-size:10px;color:var(--muted);line-height:1.7;min-height:40px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid var(--border)">Enter screen dimensions above.</div>
+    </div>
+  </div>
+
+  <!-- 3D VIEWPORT -->
+  <div class="viewport" id="viewport">
+    <div class="viewport-label">3D VIEW — DRAG TO ORBIT</div>
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
+    <div class="drop-overlay" id="drop-overlay">
+      <div class="drop-icon">⬆</div>
+      <div class="drop-text">DROP OBJ FILE</div>
+      <div class="drop-sub">Wavefront .obj format supported</div>
+    </div>
+    <canvas id="three-canvas"></canvas>
+    <div class="tooltip">Left drag: Orbit<br>Right drag: Pan<br>Scroll: Zoom</div>
+  </div>
+
+  <!-- UV CANVAS -->
+  <div class="uv-view" id="uv-view">
+    <div class="uv-grid"></div>
+    <div class="uv-view-label">UV MAP — CLICK ISLANDS TO SELECT</div>
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
+    <canvas id="uv-canvas" style="cursor:crosshair"></canvas>
+    <div class="tooltip">Click: select face<br>Shift+click: multi-select<br>Drag empty: box select<br>Drag selected: move UVs</div>
+  </div>
+
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="status-item"><div class="dot"></div><span id="status-msg">Load an OBJ file to begin editing UV maps</span></div>
+  <div class="status-item" style="margin-left:auto"><span id="status-sel">No selection</span></div>
+  <div class="status-item"><span id="status-coord">UV: —</span></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+const state = {
+  originalObjText: null,
+  meshName: 'mesh',
+  positions: [],     // [[x,y,z], ...]
+  texcoords: [],     // [[u,v], ...]
+  normals: [],       // [[nx,ny,nz], ...]
+  faces: [],         // [{posIdx:[],uvIdx:[],normIdx:[]}]  (0-based)
+  selectedFaces: new Set(),
+  separated: false,
+  checkerboard: false,
+  overlayEnabled: false,
+  overlayImage: null,
+  overlayOpacity: 0.6,
+  threeTexture: null,   // THREE.Texture built from overlayImage
+};
+
+// ═══════════════════════════════════════════════
+//  THREE.JS SETUP
+// ═══════════════════════════════════════════════
+const viewport = document.getElementById('viewport');
+const canvas3d = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setClearColor(0x070a0d, 1);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
+camera.position.set(2, 1.5, 2.5);
+camera.lookAt(0, 0, 0);
+
+// Lights
+const ambient = new THREE.AmbientLight(0x334455, 1.2);
+scene.add(ambient);
+const dirLight = new THREE.DirectionalLight(0x88ccff, 1.5);
+dirLight.position.set(3, 5, 3);
+scene.add(dirLight);
+const dirLight2 = new THREE.DirectionalLight(0xff6633, 0.4);
+dirLight2.position.set(-3, -2, -2);
+scene.add(dirLight2);
+
+// Grid helper
+const gridHelper = new THREE.GridHelper(4, 16, 0x1a2233, 0x111822);
+scene.add(gridHelper);
+
+let meshGroup = new THREE.Group();
+scene.add(meshGroup);
+
+// Orbit controls (manual)
+let isOrbiting = false, isPanning = false;
+let lastMouse = { x: 0, y: 0 };
+let spherical = { theta: 0.6, phi: 1.1, r: 3.5 };
+let target = new THREE.Vector3(0, 0, 0);
+
+function updateCamera() {
+  const x = target.x + spherical.r * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+  const y = target.y + spherical.r * Math.cos(spherical.phi);
+  const z = target.z + spherical.r * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+  camera.position.set(x, y, z);
+  camera.lookAt(target);
+}
+updateCamera();
+
+canvas3d.addEventListener('mousedown', e => {
+  if (e.button === 0) isOrbiting = true;
+  if (e.button === 2) isPanning = true;
+  lastMouse = { x: e.clientX, y: e.clientY };
+});
+window.addEventListener('mousemove', e => {
+  if (!isOrbiting && !isPanning) return;
+  const dx = e.clientX - lastMouse.x;
+  const dy = e.clientY - lastMouse.y;
+  lastMouse = { x: e.clientX, y: e.clientY };
+  if (isOrbiting) {
+    spherical.theta -= dx * 0.008;
+    spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + dy * 0.008));
+  }
+  if (isPanning) {
+    const right = new THREE.Vector3().crossVectors(
+      new THREE.Vector3(0, 1, 0),
+      camera.getWorldDirection(new THREE.Vector3())
+    ).normalize();
+    const up = new THREE.Vector3(0, 1, 0);
+    target.addScaledVector(right, dx * 0.004 * spherical.r / 3);
+    target.addScaledVector(up, dy * 0.004 * spherical.r / 3);
+  }
+  updateCamera();
+});
+window.addEventListener('mouseup', () => { isOrbiting = false; isPanning = false; });
+canvas3d.addEventListener('wheel', e => {
+  spherical.r = Math.max(0.5, Math.min(50, spherical.r + e.deltaY * 0.004));
+  updateCamera();
+  e.preventDefault();
+}, { passive: false });
+canvas3d.addEventListener('contextmenu', e => e.preventDefault());
+
+function animate() {
+  requestAnimationFrame(animate);
+  resizeViewport();
+  renderer.render(scene, camera);
+}
+animate();
+
+function resizeViewport() {
+  const w = viewport.clientWidth, h = viewport.clientHeight;
+  if (canvas3d.width !== w || canvas3d.height !== h) {
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  UV CANVAS SETUP
+// ═══════════════════════════════════════════════
+const uvView = document.getElementById('uv-view');
+const uvCanvas = document.getElementById('uv-canvas');
+const uvCtx = uvCanvas.getContext('2d');
+
+function resizeUVCanvas() {
+  const w = uvView.clientWidth, h = uvView.clientHeight;
+  if (uvCanvas.width !== w || uvCanvas.height !== h) {
+    uvCanvas.width = w;
+    uvCanvas.height = h;
+    drawUVs();
+  }
+}
+
+function uvToCanvas(u, v) {
+  const pad = 40;
+  const size = Math.min(uvCanvas.width, uvCanvas.height) - pad * 2;
+  const ox = (uvCanvas.width - size) / 2;
+  const oy = (uvCanvas.height - size) / 2;
+  return { x: ox + u * size, y: oy + (1 - v) * size };
+}
+
+// ═══════════════════════════════════════════════
+//  CHECKERBOARD PATTERN GENERATOR
+// ═══════════════════════════════════════════════
+function makeCheckerCanvas(size, squares) {
+  const cc = document.createElement('canvas');
+  cc.width = size; cc.height = size;
+  const cx = cc.getContext('2d');
+  const cell = size / squares;
+  for (let row = 0; row < squares; row++) {
+    for (let col = 0; col < squares; col++) {
+      cx.fillStyle = (row + col) % 2 === 0 ? '#cccccc' : '#888888';
+      cx.fillRect(col * cell, row * cell, cell, cell);
+    }
+  }
+  return cc;
+}
+
+function drawUVs() {
+  const w = uvCanvas.width, h = uvCanvas.height;
+  uvCtx.clearRect(0, 0, w, h);
+
+  const pad = 40;
+  const size = Math.min(w, h) - pad * 2;
+  const ox = (w - size) / 2;
+  const oy = (h - size) / 2;
+
+  if (state.faces.length === 0) {
+    // Draw background even when empty
+    if (state.checkerboard) {
+      const checker = makeCheckerCanvas(256, 8);
+      const pat = uvCtx.createPattern(checker, 'repeat');
+      uvCtx.save();
+      uvCtx.globalAlpha = 0.25;
+      uvCtx.fillStyle = pat;
+      uvCtx.fillRect(ox, oy, size, size);
+      uvCtx.restore();
+    } else {
+      uvCtx.fillStyle = 'rgba(0,229,255,0.05)';
+      uvCtx.fillRect(ox, oy, size, size);
+    }
+    uvCtx.strokeStyle = 'rgba(0,229,255,0.2)';
+    uvCtx.lineWidth = 1;
+    uvCtx.strokeRect(ox, oy, size, size);
+    uvCtx.fillStyle = 'rgba(74,90,106,0.6)';
+    uvCtx.font = '12px "Share Tech Mono"';
+    uvCtx.textAlign = 'center';
+    uvCtx.fillText('No UV data loaded', w / 2, h / 2);
+    return;
+  }
+
+  // ── Background: checkerboard or flat ──
+  if (state.checkerboard) {
+    const checker = makeCheckerCanvas(512, 16);
+    const pat = uvCtx.createPattern(checker, 'no-repeat');
+    uvCtx.save();
+    uvCtx.translate(ox, oy);
+    uvCtx.scale(size / 512, size / 512);
+    uvCtx.fillStyle = pat;
+    uvCtx.fillRect(0, 0, 512, 512);
+    uvCtx.restore();
+  } else {
+    uvCtx.fillStyle = 'rgba(0,229,255,0.03)';
+    uvCtx.fillRect(ox, oy, size, size);
+  }
+
+  // ── Texture overlay ──
+  if (state.overlayEnabled && state.overlayImage) {
+    uvCtx.save();
+    uvCtx.globalAlpha = state.overlayOpacity;
+    uvCtx.drawImage(state.overlayImage, ox, oy, size, size);
+    uvCtx.restore();
+  }
+
+  // UV space border
+  uvCtx.strokeStyle = 'rgba(0,229,255,0.25)';
+  uvCtx.lineWidth = 1.5;
+  uvCtx.strokeRect(ox, oy, size, size);
+
+  // ── Out-of-bounds warning zones (disguise: UVs MUST be 0–1) ──
+  if (state.faces.length > 0) {
+    uvCtx.save();
+    uvCtx.fillStyle = 'rgba(255,107,53,0.12)';
+    // Left OOB
+    uvCtx.fillRect(0, 0, ox, uvCanvas.height);
+    // Right OOB
+    uvCtx.fillRect(ox + size, 0, uvCanvas.width - ox - size, uvCanvas.height);
+    // Top OOB
+    uvCtx.fillRect(ox, 0, size, oy);
+    // Bottom OOB
+    uvCtx.fillRect(ox, oy + size, size, uvCanvas.height - oy - size);
+    // OOB label
+    uvCtx.fillStyle = 'rgba(255,107,53,0.5)';
+    uvCtx.font = '9px "Share Tech Mono"';
+    uvCtx.textAlign = 'left';
+    uvCtx.fillText('OOB', 4, oy + 12);
+    uvCtx.restore();
+  }
+
+  // ── Draw UV faces ──
+  const FACE_COLORS = ['#00e5ff', '#ff6b35', '#7fff6b', '#ffd700', '#ff4dff', '#4dffd6'];
+
+  state.faces.forEach((face, fi) => {
+    if (!face.uvIdx || face.uvIdx.length < 3) return;
+    const isSelected = state.selectedFaces.has(fi);
+    const color = FACE_COLORS[fi % FACE_COLORS.length];
+
+    uvCtx.beginPath();
+    face.uvIdx.forEach((ui, i) => {
+      const uv = state.texcoords[ui];
+      if (!uv) return;
+      const pt = uvToCanvas(uv[0], uv[1]);
+      if (i === 0) uvCtx.moveTo(pt.x, pt.y);
+      else uvCtx.lineTo(pt.x, pt.y);
+    });
+    uvCtx.closePath();
+
+    if (isSelected) {
+      uvCtx.fillStyle = color + '33';
+      uvCtx.fill();
+      uvCtx.strokeStyle = color;
+      uvCtx.lineWidth = 2;
+    } else {
+      uvCtx.fillStyle = 'rgba(255,255,255,0.03)';
+      uvCtx.fill();
+      uvCtx.strokeStyle = state.overlayEnabled ? 'rgba(255,255,255,0.7)' : 'rgba(200,216,232,0.25)';
+      uvCtx.lineWidth = state.overlayEnabled ? 1.2 : 0.8;
+    }
+    uvCtx.stroke();
+
+    // Vertex dots on selected
+    if (isSelected) {
+      face.uvIdx.forEach(ui => {
+        const uv = state.texcoords[ui];
+        if (!uv) return;
+        const pt = uvToCanvas(uv[0], uv[1]);
+        uvCtx.beginPath();
+        uvCtx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+        uvCtx.fillStyle = color;
+        uvCtx.fill();
+      });
+    }
+  });
+
+  // Axis labels
+  uvCtx.fillStyle = 'rgba(74,90,106,0.8)';
+  uvCtx.font = '10px "Share Tech Mono"';
+  uvCtx.textAlign = 'center';
+  uvCtx.fillText('U →', ox + size + 18, oy + size + 2);
+  uvCtx.textAlign = 'left';
+  uvCtx.fillText('V ↑', ox - 4, oy - 6);
+
+  // ── Out-of-bounds UV warning (disguise: UVs must be 0–1) ──
+  state.faces.forEach((face) => {
+    if (!face.uvIdx || face.uvIdx.length < 3) return;
+    const hasOOB = face.uvIdx.some(ui => {
+      const uv = state.texcoords[ui];
+      if (!uv) return false;
+      return uv[0] < -0.001 || uv[0] > 1.001 || uv[1] < -0.001 || uv[1] > 1.001;
+    });
+    if (!hasOOB) return;
+    uvCtx.beginPath();
+    face.uvIdx.forEach((ui, i) => {
+      const uv = state.texcoords[ui];
+      if (!uv) return;
+      const pt = uvToCanvas(uv[0], uv[1]);
+      if (i === 0) uvCtx.moveTo(pt.x, pt.y); else uvCtx.lineTo(pt.x, pt.y);
+    });
+    uvCtx.closePath();
+    uvCtx.strokeStyle = '#ff4040';
+    uvCtx.lineWidth = 2;
+    uvCtx.setLineDash([4, 3]);
+    uvCtx.stroke();
+    uvCtx.setLineDash([]);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  UV CANVAS — unified mouse interaction
+//  Modes: click-select | box-select | move
+// ═══════════════════════════════════════════════
+const uvMouse = {
+  down: false,
+  startX: 0, startY: 0,        // canvas pixels
+  startU: 0, startV: 0,        // UV space
+  curX: 0, curY: 0,
+  mode: null,                   // 'box' | 'move' | null
+  DRAG_THRESHOLD: 5,            // px before we commit to a mode
+  moveUVSnapshot: null,         // {uvIdx -> [u,v]} at drag start
+};
+
+function getUVSpaceParams() {
+  const pad = 40;
+  const size = Math.min(uvCanvas.width, uvCanvas.height) - pad * 2;
+  const ox = (uvCanvas.width - size) / 2;
+  const oy = (uvCanvas.height - size) / 2;
+  return { size, ox, oy };
+}
+
+function canvasToUV(cx, cy) {
+  const { size, ox, oy } = getUVSpaceParams();
+  return { u: (cx - ox) / size, v: 1 - (cy - oy) / size };
+}
+
+function hitTestUV(u, v) {
+  let hit = -1;
+  state.faces.forEach((face, fi) => {
+    if (!face.uvIdx || face.uvIdx.length < 3) return;
+    const pts = face.uvIdx.map(ui => state.texcoords[ui]).filter(Boolean);
+    if (pointInPolygon(u, v, pts)) hit = fi;
+  });
+  return hit;
+}
+
+// Draw box-select rect overlay on top of UV canvas
+function drawBoxSelect(ax, ay, bx, by) {
+  drawUVs();
+  const x = Math.min(ax, bx), y = Math.min(ay, by);
+  const w = Math.abs(bx - ax), h = Math.abs(by - ay);
+  uvCtx.save();
+  uvCtx.strokeStyle = '#00e5ff';
+  uvCtx.lineWidth = 1;
+  uvCtx.setLineDash([4, 3]);
+  uvCtx.strokeRect(x, y, w, h);
+  uvCtx.fillStyle = 'rgba(0,229,255,0.07)';
+  uvCtx.fillRect(x, y, w, h);
+  uvCtx.restore();
+}
+
+uvCanvas.addEventListener('mousedown', e => {
+  if (e.button !== 0 || state.faces.length === 0) return;
+  const rect = uvCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const { u, v } = canvasToUV(mx, my);
+
+  uvMouse.down = true;
+  uvMouse.startX = mx; uvMouse.startY = my;
+  uvMouse.startU = u;  uvMouse.startV = v;
+  uvMouse.curX = mx;   uvMouse.curY = my;
+  uvMouse.mode = null;
+
+  // Decide immediately if we're starting a move (pointer is on a selected face)
+  const hit = hitTestUV(u, v);
+  if (hit !== -1 && state.selectedFaces.has(hit)) {
+    uvMouse.mode = 'move-pending'; // will commit after threshold
+  }
+  e.preventDefault();
+});
+
+window.addEventListener('mousemove', e => {
+  // Always update status coord from UV canvas area
+  const rect = uvCanvas.getBoundingClientRect();
+  if (e.clientX >= rect.left && e.clientX <= rect.right &&
+      e.clientY >= rect.top  && e.clientY <= rect.bottom) {
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const { size, ox, oy } = getUVSpaceParams();
+    const u = ((mx - ox) / size).toFixed(3);
+    const v = (1 - (my - oy) / size).toFixed(3);
+    document.getElementById('status-coord').textContent = `UV: ${u}, ${v}`;
+
+    // Cursor hint
+    if (!uvMouse.down) {
+      const { u: pu, v: pv } = canvasToUV(mx, my);
+      const hit = state.faces.length > 0 ? hitTestUV(pu, pv) : -1;
+      uvCanvas.style.cursor = (hit !== -1 && state.selectedFaces.has(hit)) ? 'grab' : 'crosshair';
+    }
+  }
+
+  if (!uvMouse.down) return;
+
+  const rect2 = uvCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect2.left;
+  const my = e.clientY - rect2.top;
+  uvMouse.curX = mx; uvMouse.curY = my;
+
+  const dx = mx - uvMouse.startX;
+  const dy = my - uvMouse.startY;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  // Commit mode once we've dragged past the threshold
+  if (!uvMouse.mode || uvMouse.mode === 'move-pending') {
+    if (dist < uvMouse.DRAG_THRESHOLD) return;
+
+    if (uvMouse.mode === 'move-pending') {
+      uvMouse.mode = 'move';
+      uvCanvas.style.cursor = 'grabbing';
+      // Snapshot all UV coords that belong to selected faces
+      const uvSet = new Set();
+      [...state.selectedFaces].forEach(fi =>
+        state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); })
+      );
+      uvMouse.moveUVSnapshot = {};
+      uvSet.forEach(ui => { uvMouse.moveUVSnapshot[ui] = [...state.texcoords[ui]]; });
+    } else {
+      uvMouse.mode = 'box';
+      uvCanvas.style.cursor = 'crosshair';
+    }
+  }
+
+  if (uvMouse.mode === 'box') {
+    drawBoxSelect(uvMouse.startX, uvMouse.startY, mx, my);
+  }
+
+  if (uvMouse.mode === 'move') {
+    const { size } = getUVSpaceParams();
+    const du = dx / size;
+    const dv = -(dy / size);   // canvas Y is flipped vs UV V
+
+    Object.entries(uvMouse.moveUVSnapshot).forEach(([ui, orig]) => {
+      state.texcoords[ui][0] = orig[0] + du;
+      state.texcoords[ui][1] = orig[1] + dv;
+    });
+    drawUVs();
+  }
+});
+
+window.addEventListener('mouseup', e => {
+  if (!uvMouse.down || e.button !== 0) return;
+  uvMouse.down = false;
+  uvCanvas.style.cursor = 'crosshair';
+
+  const rect = uvCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  if (uvMouse.mode === 'box') {
+    // Box select: find all faces whose UV centroid falls inside the rect
+    const x0 = Math.min(uvMouse.startX, mx);
+    const x1 = Math.max(uvMouse.startX, mx);
+    const y0 = Math.min(uvMouse.startY, my);
+    const y1 = Math.max(uvMouse.startY, my);
+
+    if (!e.shiftKey) state.selectedFaces.clear();
+
+    state.faces.forEach((face, fi) => {
+      if (!face.uvIdx || face.uvIdx.length < 3) return;
+      // Check if any UV vertex of this face falls in the box
+      const anyIn = face.uvIdx.some(ui => {
+        const uv = state.texcoords[ui];
+        if (!uv) return false;
+        const pt = uvToCanvas(uv[0], uv[1]);
+        return pt.x >= x0 && pt.x <= x1 && pt.y >= y0 && pt.y <= y1;
+      });
+      if (anyIn) state.selectedFaces.add(fi);
+    });
+
+    updateSelection();
+    setStatus(`Box selected ${state.selectedFaces.size} face(s)`);
+
+  } else if (uvMouse.mode === 'move') {
+    buildMesh();
+    setStatus(`Moved ${[...state.selectedFaces].length} face(s)`);
+    drawUVs();
+
+  } else {
+    // Plain click
+    const { u, v } = canvasToUV(uvMouse.startX, uvMouse.startY);
+    const hit = hitTestUV(u, v);
+
+    if (hit !== -1) {
+      if (e.shiftKey) {
+        state.selectedFaces.has(hit) ? state.selectedFaces.delete(hit) : state.selectedFaces.add(hit);
+      } else {
+        if (state.selectedFaces.has(hit) && state.selectedFaces.size === 1) {
+          state.selectedFaces.clear();
+        } else {
+          state.selectedFaces.clear();
+          state.selectedFaces.add(hit);
+        }
+      }
+      updateSelection();
+    } else if (!e.shiftKey) {
+      state.selectedFaces.clear();
+      updateSelection();
+    }
+  }
+
+  uvMouse.mode = null;
+  uvMouse.moveUVSnapshot = null;
+});
+
+function pointInPolygon(x, y, pts) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i][0], yi = pts[i][1];
+    const xj = pts[j][0], yj = pts[j][1];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+// ═══════════════════════════════════════════════
+//  OBJ PARSER
+// ═══════════════════════════════════════════════
+function parseOBJ(text) {
+  const positions = [];
+  const texcoords = [];
+  const normals = [];
+  const faces = [];
+
+  const lines = text.split('\n');
+  for (let line of lines) {
+    line = line.trim();
+    if (!line || line.startsWith('#')) continue;
+    const parts = line.split(/\s+/);
+    const cmd = parts[0];
+
+    if (cmd === 'v') {
+      positions.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+    } else if (cmd === 'vt') {
+      texcoords.push([parseFloat(parts[1]), parseFloat(parts[2] || 0)]);
+    } else if (cmd === 'vn') {
+      normals.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+    } else if (cmd === 'f') {
+      const posIdx = [], uvIdx = [], normIdx = [];
+      for (let i = 1; i < parts.length; i++) {
+        const tok = parts[i].split('/');
+        posIdx.push(parseInt(tok[0]) - 1);
+        uvIdx.push(tok[1] ? parseInt(tok[1]) - 1 : -1);
+        normIdx.push(tok[2] ? parseInt(tok[2]) - 1 : -1);
+      }
+      // Triangulate (fan)
+      for (let t = 1; t < posIdx.length - 1; t++) {
+        faces.push({
+          posIdx: [posIdx[0], posIdx[t], posIdx[t + 1]],
+          uvIdx: [uvIdx[0], uvIdx[t], uvIdx[t + 1]],
+          normIdx: [normIdx[0], normIdx[t], normIdx[t + 1]],
+        });
+      }
+    }
+  }
+
+  return { positions, texcoords, normals, faces };
+}
+
+// ═══════════════════════════════════════════════
+//  BUILD THREE.JS MESH
+// ═══════════════════════════════════════════════
+function buildMesh() {
+  while (meshGroup.children.length) meshGroup.remove(meshGroup.children[0]);
+
+  const { positions, texcoords, faces } = state;
+  if (faces.length === 0) return;
+
+  const verts = [];
+  const uvs = [];
+  const colors = [];
+  const FACE_COLORS_3 = [
+    [0, 0.9, 1], [1, 0.42, 0.21], [0.5, 1, 0.42],
+    [1, 0.84, 0], [1, 0.3, 1], [0.3, 1, 0.84]
+  ];
+
+  faces.forEach((face, fi) => {
+    const isSelected = state.selectedFaces.has(fi);
+    const c = isSelected ? [1, 1, 1] : FACE_COLORS_3[fi % FACE_COLORS_3.length].map(x => x * 0.4);
+
+    face.posIdx.forEach((pi, i) => {
+      const p = positions[pi] || [0, 0, 0];
+      verts.push(...p);
+      const ui = face.uvIdx[i];
+      const uv = (ui >= 0 && texcoords[ui]) ? texcoords[ui] : [0, 0];
+      uvs.push(...uv);
+      colors.push(...c);
+    });
+  });
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geo.computeVertexNormals();
+
+  // ── Material: texture if loaded, otherwise vertex colours ──
+  let mat;
+  if (state.threeTexture && state.overlayEnabled) {
+    mat = new THREE.MeshPhongMaterial({
+      map: state.threeTexture,
+      side: THREE.DoubleSide,
+      shininess: 20,
+    });
+    // Selection tint overlay: additive highlight pass for selected faces
+    if (state.selectedFaces.size > 0) {
+      // Build a second geo with only selected faces for highlight
+      const selVerts = [], selUVs = [];
+      faces.forEach((face, fi) => {
+        if (!state.selectedFaces.has(fi)) return;
+        face.posIdx.forEach((pi, i) => {
+          selVerts.push(...(positions[pi] || [0, 0, 0]));
+          const ui = face.uvIdx[i];
+          selUVs.push(...((ui >= 0 && texcoords[ui]) ? texcoords[ui] : [0, 0]));
+        });
+      });
+      if (selVerts.length > 0) {
+        const selGeo = new THREE.BufferGeometry();
+        selGeo.setAttribute('position', new THREE.Float32BufferAttribute(selVerts, 3));
+        selGeo.setAttribute('uv', new THREE.Float32BufferAttribute(selUVs, 2));
+        const selMat = new THREE.MeshBasicMaterial({
+          color: 0x00e5ff, transparent: true, opacity: 0.25,
+          side: THREE.DoubleSide, depthTest: false,
+        });
+        meshGroup.add(new THREE.Mesh(selGeo, selMat));
+      }
+    }
+  } else {
+    mat = new THREE.MeshPhongMaterial({
+      vertexColors: true,
+      side: THREE.DoubleSide,
+      shininess: 30,
+    });
+  }
+
+  const mesh = new THREE.Mesh(geo, mat);
+
+  // Wireframe overlay — subtle when texture is showing
+  const wireOpacity = (state.threeTexture && state.overlayEnabled) ? 0.25 : 0.5;
+  const wireMat = new THREE.MeshBasicMaterial({
+    color: (state.threeTexture && state.overlayEnabled) ? 0xffffff : 0x1e3040,
+    wireframe: true, transparent: true, opacity: wireOpacity,
+  });
+  const wire = new THREE.Mesh(geo.clone(), wireMat);
+  meshGroup.add(mesh);
+  meshGroup.add(wire);
+
+  // Center and scale
+  geo.computeBoundingBox();
+  const box = geo.boundingBox;
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = 2 / maxDim;
+  meshGroup.position.copy(center.multiplyScalar(-scale));
+  meshGroup.scale.setScalar(scale);
+
+  gridHelper.position.y = box.min.y * scale - center.y * scale - 0.01;
+}
+
+// ═══════════════════════════════════════════════
+//  LOAD DATA
+// ═══════════════════════════════════════════════
+function loadOBJ(text) {
+  state.originalObjText = text;
+  const parsed = parseOBJ(text);
+  state.positions = parsed.positions;
+  state.texcoords = parsed.texcoords;
+  state.normals = parsed.normals;
+  state.faces = parsed.faces;
+  state.selectedFaces.clear();
+  state.separated = false;
+
+  updateStats();
+  buildFaceList();
+  buildMesh();
+  drawUVs();
+  setStatus(`Loaded: ${state.faces.length} faces, ${state.texcoords.length} UV coords`);
+}
+
+function updateStats() {
+  document.getElementById('stat-verts').textContent = state.positions.length;
+  document.getElementById('stat-faces').textContent = state.faces.length;
+  document.getElementById('stat-uvs').textContent = state.texcoords.length;
+}
+
+function buildFaceList() {
+  const list = document.getElementById('face-list');
+  list.innerHTML = '';
+  const FACE_COLORS_CSS = ['#00e5ff', '#ff6b35', '#7fff6b', '#ffd700', '#ff4dff', '#4dffd6'];
+
+  state.faces.forEach((_, fi) => {
+    const div = document.createElement('div');
+    div.className = 'face-item' + (state.selectedFaces.has(fi) ? ' selected' : '');
+    div.dataset.fi = fi;
+    div.style.color = FACE_COLORS_CSS[fi % FACE_COLORS_CSS.length];
+    div.innerHTML = `<div class="face-dot"></div>FACE_${String(fi).padStart(4, '0')}`;
+    div.addEventListener('click', e => {
+      if (e.shiftKey) {
+        state.selectedFaces.has(fi) ? state.selectedFaces.delete(fi) : state.selectedFaces.add(fi);
+      } else {
+        state.selectedFaces.clear();
+        state.selectedFaces.add(fi);
+      }
+      updateSelection();
+    });
+    list.appendChild(div);
+  });
+
+  document.getElementById('face-count-label').textContent = `(${state.faces.length})`;
+}
+
+function updateSelection() {
+  // Update face list UI
+  document.querySelectorAll('.face-item').forEach(el => {
+    const fi = parseInt(el.dataset.fi);
+    el.classList.toggle('selected', state.selectedFaces.has(fi));
+  });
+
+  // Status
+  const n = state.selectedFaces.size;
+  document.getElementById('status-sel').textContent = n > 0 ? `${n} face(s) selected` : 'No selection';
+
+  buildMesh();
+  drawUVs();
+}
+
+function setStatus(msg) {
+  document.getElementById('status-msg').textContent = msg;
+}
+
+// ═══════════════════════════════════════════════
+//  UV OPERATIONS
+// ═══════════════════════════════════════════════
+function getTargetFaceIndices() {
+  return state.selectedFaces.size > 0
+    ? [...state.selectedFaces]
+    : state.faces.map((_, i) => i);
+}
+
+function flipU() {
+  if (state.faces.length === 0) return;
+  const faceIndices = getTargetFaceIndices();
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+
+  // Find U range
+  let minU = Infinity, maxU = -Infinity;
+  uvSet.forEach(ui => {
+    const u = state.texcoords[ui][0];
+    if (u < minU) minU = u;
+    if (u > maxU) maxU = u;
+  });
+  const center = (minU + maxU) / 2;
+
+  uvSet.forEach(ui => {
+    state.texcoords[ui][0] = 2 * center - state.texcoords[ui][0];
+  });
+
+  drawUVs();
+  buildMesh();
+  setStatus(`Flipped U for ${uvSet.size} UV points`);
+}
+
+function flipV() {
+  if (state.faces.length === 0) return;
+  const faceIndices = getTargetFaceIndices();
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+
+  let minV = Infinity, maxV = -Infinity;
+  uvSet.forEach(ui => {
+    const v = state.texcoords[ui][1];
+    if (v < minV) minV = v;
+    if (v > maxV) maxV = v;
+  });
+  const center = (minV + maxV) / 2;
+
+  uvSet.forEach(ui => {
+    state.texcoords[ui][1] = 2 * center - state.texcoords[ui][1];
+  });
+
+  drawUVs();
+  buildMesh();
+  setStatus(`Flipped V for ${uvSet.size} UV points`);
+}
+
+function rotateUV90() {
+  if (state.faces.length === 0) return;
+  const faceIndices = getTargetFaceIndices();
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+
+  let cx = 0, cy = 0;
+  uvSet.forEach(ui => { cx += state.texcoords[ui][0]; cy += state.texcoords[ui][1]; });
+  cx /= uvSet.size; cy /= uvSet.size;
+
+  uvSet.forEach(ui => {
+    const u = state.texcoords[ui][0] - cx;
+    const v = state.texcoords[ui][1] - cy;
+    state.texcoords[ui][0] = cx - v;
+    state.texcoords[ui][1] = cy + u;
+  });
+
+  drawUVs();
+  setStatus('Rotated UVs 90°');
+}
+
+function separateByFace() {
+  if (state.faces.length === 0) return;
+
+  // Give each face its own unique UV island in a grid layout
+  const n = state.faces.length;
+  const cols = Math.ceil(Math.sqrt(n));
+  const cellSize = 1 / cols;
+
+  state.faces.forEach((face, fi) => {
+    if (face.uvIdx.length < 3) return;
+    const col = fi % cols;
+    const row = Math.floor(fi / cols);
+    const offsetU = col * cellSize;
+    const offsetV = 1 - (row + 1) * cellSize;
+
+    // Get original UV centroid
+    let cu = 0, cv = 0;
+    let count = 0;
+    face.uvIdx.forEach(ui => {
+      if (ui < 0) return;
+      cu += state.texcoords[ui][0];
+      cv += state.texcoords[ui][1];
+      count++;
+    });
+    cu /= count; cv /= count;
+
+    // Duplicate UVs for this face so they're independent
+    const newUVs = [];
+    face.uvIdx.forEach((ui, i) => {
+      const orig = (ui >= 0 && state.texcoords[ui]) ? state.texcoords[ui] : [cu, cv];
+      const nu = offsetU + (orig[0] - cu) * cellSize * 0.85 + cellSize / 2;
+      const nv = offsetV + (orig[1] - cv) * cellSize * 0.85 + cellSize / 2;
+      state.texcoords.push([nu, nv]);
+      newUVs.push(state.texcoords.length - 1);
+    });
+    face.uvIdx = newUVs;
+  });
+
+  state.separated = true;
+  updateStats();
+  drawUVs();
+  setStatus(`Separated ${n} faces into individual UV islands`);
+}
+
+function resetUVs() {
+  if (!state.originalObjText) return;
+  const parsed = parseOBJ(state.originalObjText);
+  state.texcoords = parsed.texcoords;
+  parsed.faces.forEach((f, i) => { if (state.faces[i]) state.faces[i].uvIdx = f.uvIdx; });
+  state.separated = false;
+  updateStats();
+  drawUVs();
+  buildMesh();
+  setStatus('UVs reset to original');
+}
+
+// ═══════════════════════════════════════════════
+//  SLIDERS
+// ═══════════════════════════════════════════════
+document.getElementById('uv-scale').addEventListener('input', function () {
+  const val = parseFloat(this.value);
+  document.getElementById('uv-scale-val').textContent = val.toFixed(2);
+  const faceIndices = getTargetFaceIndices();
+  if (state.faces.length === 0) return;
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+  let cu = 0, cv = 0;
+  uvSet.forEach(ui => { cu += state.texcoords[ui][0]; cv += state.texcoords[ui][1]; });
+  cu /= uvSet.size; cv /= uvSet.size;
+
+  // Load original scale from data attribute
+  const prevScale = parseFloat(this.dataset.prev || '1');
+  const factor = val / prevScale;
+  uvSet.forEach(ui => {
+    state.texcoords[ui][0] = cu + (state.texcoords[ui][0] - cu) * factor;
+    state.texcoords[ui][1] = cv + (state.texcoords[ui][1] - cv) * factor;
+  });
+  this.dataset.prev = val;
+  drawUVs();
+});
+
+document.getElementById('uv-offset-u').addEventListener('input', function () {
+  const val = parseFloat(this.value);
+  document.getElementById('uv-offset-u-val').textContent = val.toFixed(2);
+  const prev = parseFloat(this.dataset.prev || '0');
+  const delta = val - prev;
+  const faceIndices = getTargetFaceIndices();
+  if (state.faces.length === 0) return;
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+  uvSet.forEach(ui => { state.texcoords[ui][0] += delta; });
+  this.dataset.prev = val;
+  drawUVs();
+});
+
+document.getElementById('uv-offset-v').addEventListener('input', function () {
+  const val = parseFloat(this.value);
+  document.getElementById('uv-offset-v-val').textContent = val.toFixed(2);
+  const prev = parseFloat(this.dataset.prev || '0');
+  const delta = val - prev;
+  const faceIndices = getTargetFaceIndices();
+  if (state.faces.length === 0) return;
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+  uvSet.forEach(ui => { state.texcoords[ui][1] += delta; });
+  this.dataset.prev = val;
+  drawUVs();
+});
+
+// ═══════════════════════════════════════════════
+//  NORMALISE UVs  (disguise requirement: fill 0–1)
+// ═══════════════════════════════════════════════
+function normaliseUVs() {
+  if (state.faces.length === 0) return;
+
+  const faceIndices = getTargetFaceIndices();
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+  if (uvSet.size === 0) return;
+
+  let minU = Infinity, maxU = -Infinity, minV = Infinity, maxV = -Infinity;
+  uvSet.forEach(ui => {
+    const [u, v] = state.texcoords[ui];
+    if (u < minU) minU = u; if (u > maxU) maxU = u;
+    if (v < minV) minV = v; if (v > maxV) maxV = v;
+  });
+
+  const rangeU = maxU - minU || 1;
+  const rangeV = maxV - minV || 1;
+
+  uvSet.forEach(ui => {
+    state.texcoords[ui][0] = (state.texcoords[ui][0] - minU) / rangeU;
+    state.texcoords[ui][1] = (state.texcoords[ui][1] - minV) / rangeV;
+  });
+
+  drawUVs();
+  buildMesh();
+  runDisguiseValidation();
+  setStatus(`Normalised UVs to 0–1 range (disguise-ready)`);
+}
+
+// ═══════════════════════════════════════════════
+//  DISGUISE VALIDATION
+// ═══════════════════════════════════════════════
+function setValidationRow(id, state_str, text) {
+  const dot = document.getElementById('v-dot-' + id);
+  const label = document.getElementById('v-label-' + id);
+  dot.className = 'v-dot ' + state_str;
+  label.className = 'v-label ' + state_str;
+  label.textContent = text;
+}
+
+function runDisguiseValidation() {
+  if (state.faces.length === 0) {
+    ['range','norm','tri','uv','overlap'].forEach(id => setValidationRow(id, 'idle', {
+      range: 'UVs in 0–1 range', norm: 'Fills UV space (normalised)',
+      tri: 'Triangulated mesh', uv: 'All faces have UVs', overlap: 'No UV overlaps'
+    }[id]));
+    document.getElementById('dsg-hint').textContent = 'Load a mesh to validate for disguise Designer.';
+    return;
+  }
+
+  const issues = [];
+
+  // 1. All UVs in 0–1 range
+  let oobCount = 0;
+  state.texcoords.forEach(([u, v]) => {
+    if (u < -0.001 || u > 1.001 || v < -0.001 || v > 1.001) oobCount++;
+  });
+  if (oobCount === 0) {
+    setValidationRow('range', 'pass', 'UVs in 0–1 range ✓');
+  } else {
+    setValidationRow('range', 'fail', `${oobCount} UV(s) out of bounds!`);
+    issues.push(`${oobCount} UV coordinate(s) are outside 0–1. Use NORMALISE UVs.`);
+  }
+
+  // 2. Fills UV space (min~0, max~1)
+  let minU = Infinity, maxU = -Infinity, minV = Infinity, maxV = -Infinity;
+  state.texcoords.forEach(([u, v]) => {
+    if (u < minU) minU = u; if (u > maxU) maxU = u;
+    if (v < minV) minV = v; if (v > maxV) maxV = v;
+  });
+  const fillsU = minU < 0.05 && maxU > 0.95;
+  const fillsV = minV < 0.05 && maxV > 0.95;
+  if (fillsU && fillsV) {
+    setValidationRow('norm', 'pass', 'Fills UV space ✓');
+  } else {
+    setValidationRow('norm', 'warn', `UV range: U[${minU.toFixed(2)}–${maxU.toFixed(2)}] V[${minV.toFixed(2)}–${maxV.toFixed(2)}]`);
+    issues.push('UVs don\'t fill the full 0–1 space. disguise will sample blank areas. Use NORMALISE UVs.');
+  }
+
+  // 3. Triangulated (all faces have exactly 3 verts — already done by parser, but check)
+  const nonTri = state.faces.filter(f => f.posIdx.length !== 3).length;
+  if (nonTri === 0) {
+    setValidationRow('tri', 'pass', 'Triangulated ✓');
+  } else {
+    setValidationRow('tri', 'fail', `${nonTri} non-triangle face(s)`);
+    issues.push(`${nonTri} faces are not triangles. disguise requires triangulated meshes.`);
+  }
+
+  // 4. All faces have UVs
+  const noUV = state.faces.filter(f => f.uvIdx.some(ui => ui < 0 || !state.texcoords[ui])).length;
+  if (noUV === 0) {
+    setValidationRow('uv', 'pass', 'All faces have UVs ✓');
+  } else {
+    setValidationRow('uv', 'fail', `${noUV} face(s) missing UVs`);
+    issues.push(`${noUV} face(s) have no UV coordinates. disguise requires every face to have UVs.`);
+  }
+
+  // 5. UV overlap check (bounding-box heuristic)
+  let overlapCount = 0;
+  const getBBox = (face) => {
+    let u0=Infinity,u1=-Infinity,v0=Infinity,v1=-Infinity;
+    face.uvIdx.forEach(ui => {
+      const uv = state.texcoords[ui];
+      if (!uv) return;
+      if (uv[0]<u0) u0=uv[0]; if (uv[0]>u1) u1=uv[0];
+      if (uv[1]<v0) v0=uv[1]; if (uv[1]>v1) v1=uv[1];
+    });
+    return [u0,v0,u1,v1];
+  };
+  const bboxes = state.faces.map(getBBox);
+  for (let i = 0; i < bboxes.length; i++) {
+    for (let j = i + 1; j < bboxes.length; j++) {
+      const [au0,av0,au1,av1] = bboxes[i];
+      const [bu0,bv0,bu1,bv1] = bboxes[j];
+      const eps = 0.001;
+      if (au1-eps > bu0 && bu1-eps > au0 && av1-eps > bv0 && bv1-eps > av0) overlapCount++;
+    }
+  }
+  if (overlapCount === 0) {
+    setValidationRow('overlap', 'pass', 'No UV overlaps ✓');
+  } else {
+    setValidationRow('overlap', 'warn', `~${overlapCount} potential overlap(s)`);
+    issues.push(`~${overlapCount} UV islands may overlap. This can cause unexpected content mapping in disguise.`);
+  }
+
+  // Summary hint
+  const hint = document.getElementById('dsg-hint');
+  if (issues.length === 0) {
+    hint.style.borderLeftColor = 'var(--accent3)';
+    hint.style.color = 'var(--accent3)';
+    hint.textContent = '✓ Mesh is ready for disguise Designer. Export OBJ and place in your project /objects folder.';
+  } else {
+    hint.style.borderLeftColor = 'var(--accent2)';
+    hint.style.color = 'var(--muted)';
+    hint.textContent = issues[0];
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT OBJ — disguise Designer optimised
+//  Rules from disguise docs:
+//   • Deselect normals, smoothing groups, materials, material libraries
+//   • Export texture coordinates (UV map)
+//   • Flip YZ axis if source is Z-up (3ds Max default)
+//   • Triangulated faces (already done by parser)
+//   • Place in /objects/Mesh folder of disguise project
+// ═══════════════════════════════════════════════
+function exportOBJ() {
+  if (state.faces.length === 0) { setStatus('Nothing to export'); return; }
+
+  const flipYZ = document.getElementById('chk-flip-yz') && document.getElementById('chk-flip-yz').checked;
+  const stripNormals = true;  // disguise: deselect normals
+  const filename = (state.meshName || 'mesh') + '.obj';
+
+  const lines = [
+    '# Exported by UV/EDIT — disguise Designer ready',
+    '# UVs: normalised 0-1  |  Normals: stripped  |  Triangulated: yes',
+    `# Flip YZ: ${flipYZ}`,
+    ''
+  ];
+
+  // Vertices — apply YZ flip if needed (Z-up → Y-up for disguise)
+  state.positions.forEach(([x, y, z]) => {
+    if (flipYZ) lines.push(`v ${x} ${z} ${-y}`);
+    else        lines.push(`v ${x} ${y} ${z}`);
+  });
+  lines.push('');
+
+  // UV coordinates only (no MTL, no normals per disguise spec)
+  state.texcoords.forEach(([u, v]) => { lines.push(`vt ${u.toFixed(6)} ${v.toFixed(6)}`); });
+  lines.push('');
+
+  // Faces — position/UV only, no normal index (disguise: deselect normals)
+  state.faces.forEach(face => {
+    const tokens = face.posIdx.map((pi, i) => {
+      const ui = face.uvIdx[i];
+      const p = pi + 1;
+      const t = (ui >= 0) ? (ui + 1) : '';
+      return t ? `${p}/${t}` : `${p}`;
+    });
+    lines.push(`f ${tokens.join(' ')}`);
+  });
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  setStatus(`Exported ${filename} — place in disguise project /objects/Mesh/`);
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT UV PNG
+// ═══════════════════════════════════════════════
+function exportUVPNG() {
+  if (state.faces.length === 0) { setStatus('Nothing to export'); return; }
+
+  const res = 2048;
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = res; offCanvas.height = res;
+  const ctx = offCanvas.getContext('2d');
+
+  // Background
+  if (state.checkerboard) {
+    const checker = makeCheckerCanvas(512, 16);
+    const pat = ctx.createPattern(checker, 'repeat');
+    ctx.fillStyle = pat;
+    ctx.fillRect(0, 0, res, res);
+  } else {
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, res, res);
+  }
+
+  // Texture overlay
+  if (state.overlayEnabled && state.overlayImage) {
+    ctx.save();
+    ctx.globalAlpha = state.overlayOpacity;
+    ctx.drawImage(state.overlayImage, 0, 0, res, res);
+    ctx.restore();
+  }
+
+  // UV grid lines (faint)
+  ctx.strokeStyle = 'rgba(0,229,255,0.12)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    ctx.beginPath(); ctx.moveTo(i * res / 4, 0); ctx.lineTo(i * res / 4, res); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i * res / 4); ctx.lineTo(res, i * res / 4); ctx.stroke();
+  }
+
+  // Border
+  ctx.strokeStyle = 'rgba(0,229,255,0.6)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(1, 1, res - 2, res - 2);
+
+  const FACE_COLORS = ['#00e5ff', '#ff6b35', '#7fff6b', '#ffd700', '#ff4dff', '#4dffd6'];
+
+  // Draw all UV faces
+  state.faces.forEach((face, fi) => {
+    if (!face.uvIdx || face.uvIdx.length < 3) return;
+    const color = FACE_COLORS[fi % FACE_COLORS.length];
+
+    ctx.beginPath();
+    face.uvIdx.forEach((ui, i) => {
+      const uv = state.texcoords[ui];
+      if (!uv) return;
+      const x = uv[0] * res;
+      const y = (1 - uv[1]) * res;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+
+    ctx.fillStyle = color + '18';
+    ctx.fill();
+    ctx.strokeStyle = state.overlayEnabled ? 'rgba(255,255,255,0.85)' : color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // Watermark
+  ctx.fillStyle = 'rgba(0,229,255,0.3)';
+  ctx.font = '18px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('UV/EDIT', res - 12, res - 12);
+
+  offCanvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'uv_layout.png';
+    a.click();
+    URL.revokeObjectURL(url);
+    setStatus(`Exported UV layout as 2048×2048 PNG`);
+  }, 'image/png');
+}
+
+// ═══════════════════════════════════════════════
+//  SNAP UVs TO GRID
+//  Required for LED grid layouts — shells must
+//  align precisely with no gaps (disguise docs)
+// ═══════════════════════════════════════════════
+function snapUVsToGrid() {
+  if (state.faces.length === 0) return;
+  const divisions = parseInt(document.getElementById('snap-divisions').value) || 8;
+  const step = 1 / divisions;
+
+  const faceIndices = getTargetFaceIndices();
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+
+  uvSet.forEach(ui => {
+    state.texcoords[ui][0] = Math.round(state.texcoords[ui][0] / step) * step;
+    state.texcoords[ui][1] = Math.round(state.texcoords[ui][1] / step) * step;
+  });
+
+  drawUVs();
+  runDisguiseValidation();
+  setStatus(`Snapped ${uvSet.size} UV points to ${divisions}×${divisions} grid`);
+}
+
+// ═══════════════════════════════════════════════
+//  CONTENT TEMPLATE RESOLUTION CALCULATOR
+//  Disguise workflow: pixel density × real-world
+//  dimensions → content template resolution
+// ═══════════════════════════════════════════════
+function calcContentTemplate() {
+  const physW = parseFloat(document.getElementById('phys-w').value) || 0;
+  const physH = parseFloat(document.getElementById('phys-h').value) || 0;
+  const pixelPitch = parseFloat(document.getElementById('pixel-pitch').value) || 0;
+  const out = document.getElementById('template-result');
+
+  if (!physW || !physH || !pixelPitch) {
+    out.textContent = 'Enter dimensions and pixel pitch.';
+    return;
+  }
+
+  // pixels = physical size (mm) / pixel pitch (mm)
+  const pxW = Math.round((physW * 1000) / pixelPitch);
+  const pxH = Math.round((physH * 1000) / pixelPitch);
+  const aspect = (pxW / pxH).toFixed(4);
+
+  out.innerHTML = `<span style="color:var(--accent3)">${pxW} × ${pxH} px</span><br>Aspect: ${aspect}<br><span style="color:var(--muted)">Set this as screen resolution in disguise Designer</span>`;
+}
+
+// ═══════════════════════════════════════════════
+//  DEMO MODEL (procedural cube)
+// ═══════════════════════════════════════════════
+function loadDemoModel() {
+  // 6-panel LED strip array — typical disguise screen surface
+  // Panels share overlapping UVs (common import problem), need Separate by Face + Normalise
+  // Models a 6×1 horizontal LED strip, each panel 0.5m wide × 1.0m tall
+  const obj = `# disguise Demo — 6-Panel LED Strip Array
+# 6 flat panels arranged horizontally, each 0.5m x 1.0m
+# UVs overlap (common real-world problem) — use Separate By Face + Normalise
+
+v 0.0 0.0 0.0
+v 0.5 0.0 0.0
+v 0.5 1.0 0.0
+v 0.0 1.0 0.0
+
+v 0.5 0.0 0.0
+v 1.0 0.0 0.0
+v 1.0 1.0 0.0
+v 0.5 1.0 0.0
+
+v 1.0 0.0 0.0
+v 1.5 0.0 0.0
+v 1.5 1.0 0.0
+v 1.0 1.0 0.0
+
+v 1.5 0.0 0.0
+v 2.0 0.0 0.0
+v 2.0 1.0 0.0
+v 1.5 1.0 0.0
+
+v 2.0 0.0 0.0
+v 2.5 0.0 0.0
+v 2.5 1.0 0.0
+v 2.0 1.0 0.0
+
+v 2.5 0.0 0.0
+v 3.0 0.0 0.0
+v 3.0 1.0 0.0
+v 2.5 1.0 0.0
+
+vt 0.0 0.0
+vt 1.0 0.0
+vt 1.0 1.0
+vt 0.0 1.0
+
+# All 6 panels share the same UV space (overlapping — needs fixing for disguise)
+f 1/1 2/2 3/3
+f 1/1 3/3 4/4
+f 5/1 6/2 7/3
+f 5/1 7/3 8/4
+f 9/1 10/2 11/3
+f 9/1 11/3 12/4
+f 13/1 14/2 15/3
+f 13/1 15/3 16/4
+f 17/1 18/2 19/3
+f 17/1 19/3 20/4
+f 21/1 22/2 23/3
+f 21/1 23/3 24/4
+`;
+  state.meshName = 'led_strip_6panel';
+  loadOBJ(obj);
+  setStatus('6-panel LED strip loaded — UVs overlap! Use Separate By Face → Normalise UVs → Export for disguise');
+}
+
+
+// ═══════════════════════════════════════════════
+//  EVENT BINDINGS
+// ═══════════════════════════════════════════════
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  state.meshName = file.name.replace(/\.obj$/i, '');
+  const reader = new FileReader();
+  reader.onload = ev => loadOBJ(ev.target.result);
+  reader.readAsText(file);
+});
+
+document.getElementById('btn-load-demo').addEventListener('click', loadDemoModel);
+document.getElementById('btn-flip-u').addEventListener('click', flipU);
+document.getElementById('btn-flip-v').addEventListener('click', flipV);
+document.getElementById('btn-flip-u2').addEventListener('click', flipU);
+document.getElementById('btn-flip-v2').addEventListener('click', flipV);
+document.getElementById('btn-rotate-uv').addEventListener('click', rotateUV90);
+document.getElementById('btn-reset-uv').addEventListener('click', resetUVs);
+document.getElementById('btn-normalise').addEventListener('click', normaliseUVs);
+document.getElementById('btn-normalise2').addEventListener('click', normaliseUVs);
+document.getElementById('btn-separate').addEventListener('click', separateByFace);
+document.getElementById('btn-separate2').addEventListener('click', separateByFace);
+document.getElementById('btn-export').addEventListener('click', exportOBJ);
+document.getElementById('btn-export2').addEventListener('click', exportOBJ);
+
+document.getElementById('btn-export-png').addEventListener('click', exportUVPNG);
+
+// Checkerboard toggle
+document.getElementById('btn-checker').addEventListener('click', function () {
+  state.checkerboard = !state.checkerboard;
+  this.classList.toggle('active', state.checkerboard);
+  drawUVs();
+  setStatus(state.checkerboard ? 'Checkerboard enabled' : 'Checkerboard disabled');
+});
+
+// Texture overlay toggle
+document.getElementById('btn-overlay-toggle').addEventListener('click', function () {
+  state.overlayEnabled = !state.overlayEnabled;
+  this.classList.toggle('active', state.overlayEnabled);
+  document.getElementById('overlay-controls').classList.toggle('visible', state.overlayEnabled);
+  drawUVs();
+  buildMesh();
+  setStatus(state.overlayEnabled ? 'Texture overlay enabled' : 'Texture overlay disabled');
+});
+
+// Load texture image
+document.getElementById('btn-load-texture').addEventListener('click', () => {
+  document.getElementById('texture-input').click();
+});
+document.getElementById('texture-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      state.overlayImage = img;
+      state.overlayEnabled = true;
+
+      // Build THREE.Texture from the same image
+      if (state.threeTexture) state.threeTexture.dispose();
+      const tex = new THREE.Texture(img);
+      tex.needsUpdate = true;
+      // THREE r128 default flipY=true matches UV V convention correctly
+      state.threeTexture = tex;
+
+      document.getElementById('btn-overlay-toggle').classList.add('active');
+      document.getElementById('overlay-controls').classList.add('visible');
+      drawUVs();
+      buildMesh();
+      setStatus(`Texture loaded: ${file.name} (${img.width}×${img.height}) — visible on 3D mesh and UV canvas`);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Overlay opacity slider
+document.getElementById('overlay-opacity').addEventListener('input', function () {
+  state.overlayOpacity = parseFloat(this.value);
+  document.getElementById('overlay-opacity-val').textContent = state.overlayOpacity.toFixed(2);
+  drawUVs();
+});
+
+document.getElementById('btn-snap-grid').addEventListener('click', snapUVsToGrid);
+document.getElementById('btn-calc-template').addEventListener('click', calcContentTemplate);
+
+// Allow Enter key in template calc fields
+['phys-w','phys-h','pixel-pitch'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') calcContentTemplate(); });
+});
+
+// Drag & drop on viewport
+const dropOverlay = document.getElementById('drop-overlay');
+viewport.addEventListener('dragover', e => { e.preventDefault(); dropOverlay.classList.add('active'); });
+viewport.addEventListener('dragleave', () => dropOverlay.classList.remove('active'));
+viewport.addEventListener('drop', e => {
+  e.preventDefault();
+  dropOverlay.classList.remove('active');
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith('.obj')) {
+    const reader = new FileReader();
+    reader.onload = ev => loadOBJ(ev.target.result);
+    reader.readAsText(file);
+  }
+});
+
+// Resize observer
+const ro = new ResizeObserver(() => { resizeViewport(); resizeUVCanvas(); });
+ro.observe(viewport);
+ro.observe(uvView);
+
+// Initial draw
+resizeUVCanvas();
+drawUVs();
+</script>
+</body>
+</html>
