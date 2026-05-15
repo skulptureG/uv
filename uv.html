@@ -110,6 +110,18 @@
     overflow: hidden;
   }
 
+  /* Thin scrollable inner wrapper — all sections live here */
+  .sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
   .sidebar-section {
     border-bottom: 1px solid var(--border);
     padding: 12px;
@@ -427,6 +439,7 @@
 
   <!-- SIDEBAR -->
   <div class="sidebar">
+   <div class="sidebar-scroll">
     <div class="sidebar-section">
       <div class="sidebar-title">Model Info</div>
       <div class="stat-row"><span>Vertices</span><span id="stat-verts">—</span></div>
@@ -511,9 +524,9 @@
       </div>
     </div>
 
-    <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div class="sidebar-section">
       <div class="sidebar-title">Faces <span id="face-count-label" style="color:var(--muted);font-size:10px"></span></div>
-      <div class="face-list" id="face-list"></div>
+      <div class="face-list" id="face-list" style="max-height:180px"></div>
     </div>
 
     <div class="sidebar-section">
@@ -564,11 +577,12 @@
       <button class="btn btn-primary" id="btn-calc-template" style="width:100%;margin-bottom:6px">CALCULATE</button>
       <div id="template-result" style="font-size:10px;color:var(--muted);line-height:1.7;min-height:40px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid var(--border)">Enter screen dimensions above.</div>
     </div>
-  </div>
+   </div><!-- /sidebar-scroll -->
+  </div><!-- /sidebar -->
 
   <!-- 3D VIEWPORT -->
   <div class="viewport" id="viewport">
-    <div class="viewport-label">3D VIEW — DRAG TO ORBIT</div>
+    <div class="viewport-label">3D VIEW — CLICK TO SELECT · DRAG TO ORBIT</div>
     <div class="corner-tl"></div>
     <div class="corner-br"></div>
     <div class="drop-overlay" id="drop-overlay">
@@ -651,11 +665,19 @@ scene.add(gridHelper);
 let meshGroup = new THREE.Group();
 scene.add(meshGroup);
 
+// Raycaster for 3D mesh picking
+const raycaster = new THREE.Raycaster();
+// Maps triangle index (bufferGeometry drawRange) → original face index
+let faceTriMap = []; // faceTriMap[triangleIdx] = faceIdx
+
 // Orbit controls (manual)
 let isOrbiting = false, isPanning = false;
 let lastMouse = { x: 0, y: 0 };
 let spherical = { theta: 0.6, phi: 1.1, r: 3.5 };
 let target = new THREE.Vector3(0, 0, 0);
+// Track mousedown position to distinguish click vs drag
+let mouseDownPos = { x: 0, y: 0 };
+const CLICK_THRESHOLD = 5; // px
 
 function updateCamera() {
   const x = target.x + spherical.r * Math.sin(spherical.phi) * Math.sin(spherical.theta);
@@ -670,7 +692,9 @@ canvas3d.addEventListener('mousedown', e => {
   if (e.button === 0) isOrbiting = true;
   if (e.button === 2) isPanning = true;
   lastMouse = { x: e.clientX, y: e.clientY };
+  mouseDownPos = { x: e.clientX, y: e.clientY };
 });
+
 window.addEventListener('mousemove', e => {
   if (!isOrbiting && !isPanning) return;
   const dx = e.clientX - lastMouse.x;
@@ -691,12 +715,72 @@ window.addEventListener('mousemove', e => {
   }
   updateCamera();
 });
-window.addEventListener('mouseup', () => { isOrbiting = false; isPanning = false; });
+
+window.addEventListener('mouseup', e => {
+  const wasDragging = Math.abs(e.clientX - mouseDownPos.x) > CLICK_THRESHOLD ||
+                      Math.abs(e.clientY - mouseDownPos.y) > CLICK_THRESHOLD;
+
+  if (e.button === 0 && !wasDragging && state.faces.length > 0) {
+    // It's a click — raycast to pick a face
+    const rect = canvas3d.getBoundingClientRect();
+    const ndcX = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
+    const ndcY = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
+    raycaster.setFromCamera({ x: ndcX, y: ndcY }, camera);
+
+    // Only test the first (solid) mesh child
+    const meshChild = meshGroup.children[0];
+    if (meshChild) {
+      const hits = raycaster.intersectObject(meshChild, false);
+      if (hits.length > 0) {
+        const triIdx = hits[0].faceIndex; // triangle index in buffer geometry
+        const faceIdx = faceTriMap[triIdx];
+        if (faceIdx !== undefined) {
+          if (e.shiftKey) {
+            state.selectedFaces.has(faceIdx)
+              ? state.selectedFaces.delete(faceIdx)
+              : state.selectedFaces.add(faceIdx);
+          } else {
+            if (state.selectedFaces.has(faceIdx) && state.selectedFaces.size === 1) {
+              state.selectedFaces.clear();
+            } else {
+              state.selectedFaces.clear();
+              state.selectedFaces.add(faceIdx);
+            }
+          }
+          updateSelection();
+          // Scroll face list item into view
+          const listEl = document.querySelector(`.face-item[data-fi="${faceIdx}"]`);
+          if (listEl) listEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      } else if (!e.shiftKey) {
+        // Clicked empty space — deselect
+        state.selectedFaces.clear();
+        updateSelection();
+      }
+    }
+  }
+
+  isOrbiting = false;
+  isPanning = false;
+});
 canvas3d.addEventListener('wheel', e => {
   spherical.r = Math.max(0.5, Math.min(50, spherical.r + e.deltaY * 0.004));
   updateCamera();
   e.preventDefault();
 }, { passive: false });
+canvas3d.addEventListener('mousemove', e => {
+  if (isOrbiting || isPanning || state.faces.length === 0) return;
+  const rect = canvas3d.getBoundingClientRect();
+  const ndcX = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
+  const ndcY = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
+  raycaster.setFromCamera({ x: ndcX, y: ndcY }, camera);
+  const meshChild = meshGroup.children[0];
+  if (meshChild) {
+    const hits = raycaster.intersectObject(meshChild, false);
+    canvas3d.style.cursor = hits.length > 0 ? 'pointer' : 'default';
+  }
+});
+
 canvas3d.addEventListener('contextmenu', e => e.preventDefault());
 
 function animate() {
@@ -1194,7 +1278,11 @@ function buildMesh() {
     [1, 0.84, 0], [1, 0.3, 1], [0.3, 1, 0.84]
   ];
 
+  // Reset faceTriMap — each face is one triangle (already triangulated)
+  faceTriMap = [];
+
   faces.forEach((face, fi) => {
+    faceTriMap.push(fi); // triangle fi → face fi (1:1 since already triangulated)
     const isSelected = state.selectedFaces.has(fi);
     const c = isSelected ? [1, 1, 1] : FACE_COLORS_3[fi % FACE_COLORS_3.length].map(x => x * 0.4);
 
@@ -1345,6 +1433,19 @@ function updateSelection() {
 
   buildMesh();
   drawUVs();
+
+  // If exactly one face selected, flash the UV canvas label to hint the connection
+  if (n === 1) {
+    const label = document.querySelector('.uv-view-label');
+    if (label) {
+      label.style.color = 'var(--accent)';
+      label.textContent = 'UV MAP — FACE LINKED FROM 3D VIEW';
+      setTimeout(() => {
+        label.style.color = '';
+        label.textContent = 'UV MAP — CLICK ISLANDS TO SELECT';
+      }, 1800);
+    }
+  }
 }
 
 function setStatus(msg) {
