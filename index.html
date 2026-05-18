@@ -18,7 +18,128 @@
     --muted: #4a5a6a;
     --selected: rgba(0,229,255,0.15);
     --hover: rgba(0,229,255,0.07);
+    --uv-bg: #05080b;
+    --vp-bg: #070a0d;
+    --grid-color: rgba(0,229,255,0.07);
   }
+
+  /* ── DARK THEME ── */
+  [data-theme="dark"] {
+    --bg: #121212;
+    --panel: #1a1a1a;
+    --border: #2e2e2e;
+    --accent: #e0e0e0;
+    --accent2: #ff7043;
+    --accent3: #69f0ae;
+    --text: #eeeeee;
+    --muted: #666666;
+    --selected: rgba(255,255,255,0.1);
+    --hover: rgba(255,255,255,0.05);
+    --uv-bg: #0e0e0e;
+    --vp-bg: #111111;
+    --grid-color: rgba(255,255,255,0.04);
+  }
+
+  /* ── LIGHT THEME ── */
+  [data-theme="light"] {
+    --bg: #f0f2f5;
+    --panel: #ffffff;
+    --border: #d0d5dd;
+    --accent: #0070f3;
+    --accent2: #e05a00;
+    --accent3: #14a651;
+    --text: #1a1a2e;
+    --muted: #8896ab;
+    --selected: rgba(0,112,243,0.12);
+    --hover: rgba(0,112,243,0.06);
+    --uv-bg: #f8f9fc;
+    --vp-bg: #e8ecf2;
+    --grid-color: rgba(0,0,0,0.06);
+  }
+
+  /* ── RETRO THEME ── */
+  [data-theme="retro"] {
+    --bg: #0d0900;
+    --panel: #130e01;
+    --border: #2a1f00;
+    --accent: #ffb300;
+    --accent2: #ff6600;
+    --accent3: #00ff41;
+    --text: #f5c842;
+    --muted: #7a5c00;
+    --selected: rgba(255,179,0,0.15);
+    --hover: rgba(255,179,0,0.07);
+    --uv-bg: #080600;
+    --vp-bg: #0a0700;
+    --grid-color: rgba(255,179,0,0.08);
+  }
+
+  /* ── BLUEPRINT THEME ── */
+  [data-theme="blueprint"] {
+    --bg: #0d1b2e;
+    --panel: #112240;
+    --border: #1e3a5f;
+    --accent: #ffffff;
+    --accent2: #ffd166;
+    --accent3: #06d6a0;
+    --text: #cce7ff;
+    --muted: #4a7fa5;
+    --selected: rgba(255,255,255,0.12);
+    --hover: rgba(255,255,255,0.05);
+    --uv-bg: #091929;
+    --vp-bg: #0b1e33;
+    --grid-color: rgba(255,255,255,0.06);
+  }
+
+  /* ── THEME SWITCHER ── */
+  .theme-switcher {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border);
+  }
+
+  .theme-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    position: relative;
+  }
+
+  .theme-swatch:hover { transform: scale(1.2); }
+  .theme-swatch.active { border-color: var(--accent); transform: scale(1.15); }
+
+  .theme-swatch[data-t="neon"]      { background: radial-gradient(circle at 35% 35%, #00e5ff, #0a0c0f); }
+  .theme-swatch[data-t="dark"]      { background: radial-gradient(circle at 35% 35%, #555, #121212); }
+  .theme-swatch[data-t="light"]     { background: radial-gradient(circle at 35% 35%, #ffffff, #d0d5dd); }
+  .theme-swatch[data-t="retro"]     { background: radial-gradient(circle at 35% 35%, #ffb300, #0d0900); }
+  .theme-swatch[data-t="blueprint"] { background: radial-gradient(circle at 35% 35%, #4a9eff, #0d1b2e); }
+
+  .theme-swatch[data-t="neon"]::after      { content: 'NEON'; }
+  .theme-swatch[data-t="dark"]::after      { content: 'DARK'; }
+  .theme-swatch[data-t="light"]::after     { content: 'LIGHT'; }
+  .theme-swatch[data-t="retro"]::after     { content: 'RETRO'; }
+  .theme-swatch[data-t="blueprint"]::after { content: 'BLUE'; }
+
+  .theme-swatch::after {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    color: var(--muted);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .theme-swatch:hover::after { opacity: 1; }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -110,6 +231,18 @@
     overflow: hidden;
   }
 
+  /* Thin scrollable inner wrapper — all sections live here */
+  .sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
   .sidebar-section {
     border-bottom: 1px solid var(--border);
     padding: 12px;
@@ -126,12 +259,39 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    cursor: pointer;
+    user-select: none;
   }
 
   .sidebar-title::before {
     content: '';
     width: 3px; height: 10px;
     background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .sidebar-title .collapse-arrow {
+    margin-left: auto;
+    font-size: 9px;
+    color: var(--muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section.collapsed .collapse-arrow { transform: rotate(-90deg); }
+  .sidebar-section.collapsed .section-body { display: none; }
+
+  /* disguise sections get a gold left border accent */
+  .sidebar-section.dsg-section {
+    border-left: 2px solid var(--accent2);
+  }
+
+  .sidebar-section.dsg-section .sidebar-title {
+    color: var(--accent2);
+  }
+
+  .sidebar-section.dsg-section .sidebar-title::before {
+    background: var(--accent2);
   }
 
   .face-list {
@@ -189,7 +349,7 @@
   /* ── 3D VIEW ── */
   .viewport {
     position: relative;
-    background: #070a0d;
+    background: var(--vp-bg);
     overflow: hidden;
     border-right: 1px solid var(--border);
   }
@@ -212,10 +372,108 @@
     display: block;
   }
 
+  /* ── COLLAPSIBLE SECTIONS ── */
+  .section-group-header {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .section-group-header span {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    flex: 1;
+  }
+
+  .section-group-header .group-arrow {
+    font-size: 10px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+
+  .section-group-header.collapsed .group-arrow { transform: rotate(-90deg); }
+
+  .section-group {
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 2px;
+  }
+
+  .section-group-body { display: block; }
+  .section-group-body.collapsed { display: none; }
+
+  /* disguise group accent */
+  .group-dsg  { border-left: 3px solid #ff6b35; }
+  .group-uv   { border-left: 3px solid #00e5ff; }
+  .group-view { border-left: 3px solid #7fff6b; }
+
+  .group-dsg  .section-group-header span { color: #ff6b35; }
+  .group-uv   .section-group-header span { color: #00e5ff; }
+  .group-view .section-group-header span { color: #7fff6b; }
+
+  /* ── FULLSCREEN PANEL ── */
+  .panel-fullscreen {
+    position: fixed !important;
+    inset: 48px 0 26px 0 !important;  /* below header, above statusbar */
+    z-index: 50 !important;
+    width: 100% !important;
+    height: calc(100vh - 74px) !important;
+  }
+
+  .panel-fullscreen ~ * { visibility: hidden; }
+
+  body.has-fullscreen .main > *:not(.panel-fullscreen) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* ── SELECTION MODE BAR ── */
+  .sel-mode-bar {
+    position: absolute;
+    top: 10px; right: 12px;
+    display: flex;
+    gap: 3px;
+    z-index: 5;
+  }
+
+  .sel-mode-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .sel-mode-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .sel-mode-btn.active {
+    border-color: var(--accent);
+    color: var(--bg);
+    background: var(--accent);
+  }
+
   /* ── UV CANVAS ── */
   .uv-view {
     position: relative;
-    background: #05080b;
+    background: var(--uv-bg);
     overflow: hidden;
   }
 
@@ -284,7 +542,6 @@
     pointer-events: none;
     opacity: 0.4;
   }
-
   /* Corner accent */
   .corner-tl, .corner-br {
     position: absolute;
@@ -341,6 +598,262 @@
 
   .range-row { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
   .range-val { font-size: 10px; color: var(--accent); }
+
+  .btn-toggle { border-color: var(--border); color: var(--muted); }
+  .btn-toggle.active { border-color: var(--accent3); color: var(--accent3); background: rgba(127,255,107,0.08); }
+  .btn-toggle.active::before { background: var(--accent3); }
+
+  /* texture overlay opacity slider row */
+  .overlay-controls { margin-top: 8px; display: none; }
+  .overlay-controls.visible { display: block; }
+
+  /* Auto-fix overlap button */
+  .autofix-wrap { margin-top: 8px; display: none; }
+  .autofix-wrap.visible { display: block; }
+  .btn-autofix {
+    width: 100%;
+    border-color: #ffd700;
+    color: #ffd700;
+    font-size: 10px;
+    padding: 6px;
+    animation: pulse-border 1.5s ease-in-out infinite;
+  }
+  .btn-autofix::before { background: #ffd700; }
+  .btn-autofix:hover { border-color: #ffd700; color: #ffd700; }
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0px rgba(255,215,0,0); }
+    50%       { box-shadow: 0 0 8px rgba(255,215,0,0.4); }
+  }
+  .btn-autofix.running {
+    animation: none;
+    color: var(--muted);
+    border-color: var(--border);
+    pointer-events: none;
+  }
+  .btn-undo-autofix {
+    border-color: var(--muted);
+    color: var(--muted);
+    font-size: 10px;
+    padding: 5px;
+  }
+  .btn-undo-autofix:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── SELECTION MODE TABS ── */
+  .sel-mode-bar {
+    position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 2px; z-index: 5;
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 2px;
+  }
+  .sel-mode-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; letter-spacing: 1px;
+    padding: 4px 12px; border: none;
+    background: transparent; color: var(--muted);
+    cursor: pointer; text-transform: uppercase;
+    transition: all 0.12s;
+  }
+  .sel-mode-btn:hover { color: var(--text); }
+  .sel-mode-btn.active {
+    background: var(--accent); color: var(--bg);
+    font-weight: bold;
+  }
+  .overlap-details {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.6;
+    padding: 5px 6px;
+    background: rgba(255,107,53,0.06);
+    border-left: 2px solid var(--accent2);
+    display: none;
+  }
+  .overlap-details.visible { display: block; }
+
+  /* ── DISGUISE VALIDATION ── */
+  .dsg-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px; letter-spacing: 2px;
+    color: #e8e0ff; opacity: 0.7;
+    margin-left: 6px;
+  }
+  .dsg-badge::before {
+    content: ''; width: 6px; height: 6px;
+    background: #9b6dff; border-radius: 50%;
+  }
+
+  .validation-panel {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 8px;
+    margin-top: 8px;
+    font-size: 10px;
+    line-height: 1.8;
+  }
+
+  .v-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 2px 0;
+  }
+  .v-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .v-dot.pass { background: var(--accent3); box-shadow: 0 0 4px var(--accent3); }
+  .v-dot.fail { background: var(--accent2); box-shadow: 0 0 4px var(--accent2); }
+  .v-dot.warn { background: #ffd700; box-shadow: 0 0 4px #ffd700; }
+  .v-dot.idle { background: var(--border); }
+  .v-label { color: var(--muted); flex: 1; }
+  .v-label.fail { color: var(--accent2); }
+  .v-label.pass { color: var(--accent3); }
+  .v-label.warn { color: #ffd700; }
+
+  /* out-of-bounds UV highlight drawn on canvas — no CSS needed, just note */
+  .dsg-info-box {
+    margin-top: 8px;
+    padding: 7px 8px;
+    background: rgba(155,109,255,0.07);
+    border-left: 2px solid #9b6dff;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  /* ── LIGHT THEME — extra overrides for readability ── */
+  [data-theme="light"] .btn { background: rgba(0,0,0,0.02); }
+  [data-theme="light"] .btn:hover { background: rgba(0,112,243,0.08); }
+  [data-theme="light"] .sidebar-scroll::-webkit-scrollbar-thumb { background: #c0c8d8; }
+  [data-theme="light"] .face-list::-webkit-scrollbar-thumb { background: #c0c8d8; }
+  [data-theme="light"] select { background: #fff; color: #1a1a2e; }
+  [data-theme="light"] .uv-grid { filter: invert(0) opacity(0.6); }
+
+  /* ── RETRO THEME — scanline texture ── */
+  [data-theme="retro"] body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.06) 2px,
+      rgba(0,0,0,0.06) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── BLUEPRINT THEME — subtle dot grid on body ── */
+  [data-theme="blueprint"] .uv-grid {
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .pack-modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(5,8,11,0.88);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .pack-modal-backdrop.open { display: flex; }
+
+  .pack-modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    width: min(900px, 94vw);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .pack-modal-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+
+  .pack-modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .pack-modal-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .pack-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .pack-panel + .pack-panel {
+    border-left: 1px solid var(--border);
+  }
+
+  .pack-panel-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pack-panel-label .badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border: 1px solid currentColor;
+    opacity: 0.7;
+  }
+
+  .pack-canvas-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--uv-bg);
+  }
+
+  .pack-canvas-wrap canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .pack-modal-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pack-stat {
+    font-size: 10px;
+    color: var(--muted);
+    margin-right: auto;
+  }
+
+  .pack-stat strong { color: var(--text); }
 </style>
 </head>
 <body>
@@ -348,7 +861,14 @@
 <!-- HEADER -->
 <header>
   <div class="logo">UV<span>/</span>EDIT</div>
-  <div style="font-size:10px;color:var(--muted);letter-spacing:2px">3D UV MAP EDITOR</div>
+  <div style="font-size:10px;color:var(--muted);letter-spacing:2px">FOR DISGUISE</div>
+  <div class="theme-switcher">
+    <div class="theme-swatch active" data-t="neon"      title="Neon"></div>
+    <div class="theme-swatch"       data-t="dark"      title="Dark"></div>
+    <div class="theme-swatch"       data-t="light"     title="Light"></div>
+    <div class="theme-swatch"       data-t="retro"     title="Retro"></div>
+    <div class="theme-swatch"       data-t="blueprint" title="Blueprint"></div>
+  </div>
   <div class="header-btns">
     <label class="btn btn-primary" style="cursor:pointer">
       LOAD OBJ
@@ -357,7 +877,10 @@
     <button class="btn" id="btn-load-demo">DEMO MODEL</button>
     <button class="btn btn-danger" id="btn-flip-u">FLIP U</button>
     <button class="btn btn-danger" id="btn-flip-v">FLIP V</button>
+    <button class="btn" id="btn-normalise">NORMALISE UVs</button>
     <button class="btn" id="btn-separate">SEPARATE BY FACE</button>
+    <button class="btn" id="btn-undo" style="opacity:0.35" disabled>↩ UNDO</button>
+    <button class="btn" id="btn-frame">⊹ FRAME</button>
     <button class="btn btn-success" id="btn-export">EXPORT OBJ</button>
   </div>
 </header>
@@ -367,67 +890,231 @@
 
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-title">Model Info</div>
-      <div class="stat-row"><span>Vertices</span><span id="stat-verts">—</span></div>
-      <div class="stat-row"><span>Faces</span><span id="stat-faces">—</span></div>
-      <div class="stat-row"><span>UV Coords</span><span id="stat-uvs">—</span></div>
-    </div>
+   <div class="sidebar-scroll">
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">UV Operations</div>
-      <div class="ops-grid">
-        <button class="btn btn-danger" id="btn-flip-u2">FLIP U</button>
-        <button class="btn btn-danger" id="btn-flip-v2">FLIP V</button>
-        <button class="btn" id="btn-rotate-uv">ROTATE 90°</button>
-        <button class="btn" id="btn-reset-uv">RESET UVs</button>
+    <!-- ══ DISGUISE GROUP ══ -->
+    <div class="section-group group-dsg" id="group-dsg">
+      <div class="section-group-header" onclick="toggleGroup('group-dsg')">
+        <span>⬡ disguise</span>
+        <span class="group-arrow">▾</span>
       </div>
-    </div>
+      <div class="section-group-body" id="group-dsg-body">
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">Selection</div>
-      <label>Select faces</label>
-      <select id="face-select-mode">
-        <option value="all">All Faces</option>
-        <option value="selected">Selected Only</option>
-      </select>
-      <div style="margin-top:8px">
-        <label>UV Scale</label>
-        <div class="range-row">
-          <input type="range" id="uv-scale" min="0.1" max="3" step="0.05" value="1">
-          <span class="range-val" id="uv-scale-val">1.00</span>
+        <div class="sidebar-section">
+          <div class="sidebar-title">Model Info</div>
+          <div class="stat-row"><span>Vertices</span><span id="stat-verts">—</span></div>
+          <div class="stat-row"><span>Faces</span><span id="stat-faces">—</span></div>
+          <div class="stat-row"><span>UV Coords</span><span id="stat-uvs">—</span></div>
         </div>
-      </div>
-      <div style="margin-top:8px">
-        <label>UV Offset U</label>
-        <div class="range-row">
-          <input type="range" id="uv-offset-u" min="-1" max="1" step="0.01" value="0">
-          <span class="range-val" id="uv-offset-u-val">0.00</span>
-        </div>
-      </div>
-      <div style="margin-top:8px">
-        <label>UV Offset V</label>
-        <div class="range-row">
-          <input type="range" id="uv-offset-v" min="-1" max="1" step="0.01" value="0">
-          <span class="range-val" id="uv-offset-v-val">0.00</span>
-        </div>
-      </div>
-    </div>
 
-    <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-      <div class="sidebar-title">Faces <span id="face-count-label" style="color:var(--muted);font-size:10px"></span></div>
-      <div class="face-list" id="face-list"></div>
-    </div>
+        <div class="sidebar-section">
+          <div class="sidebar-title">disguise Validation <span class="dsg-badge">DESIGNER</span></div>
+          <div class="validation-panel">
+            <div class="v-row"><div class="v-dot idle" id="v-dot-range"></div><span class="v-label" id="v-label-range">UVs in 0–1 range</span></div>
+            <div class="v-row"><div class="v-dot idle" id="v-dot-norm"></div><span class="v-label" id="v-label-norm">Fills UV space (normalised)</span></div>
+            <div class="v-row"><div class="v-dot idle" id="v-dot-tri"></div><span class="v-label" id="v-label-tri">Triangulated mesh</span></div>
+            <div class="v-row"><div class="v-dot idle" id="v-dot-uv"></div><span class="v-label" id="v-label-uv">All faces have UVs</span></div>
+            <div class="v-row"><div class="v-dot idle" id="v-dot-overlap"></div><span class="v-label" id="v-label-overlap">No UV overlaps</span></div>
+          </div>
+          <div class="overlap-details" id="overlap-details"></div>
+          <div class="autofix-wrap" id="autofix-wrap">
+            <button class="btn btn-autofix" id="btn-autofix">⚡ PREVIEW &amp; FIX OVERLAPS</button>
+            <button class="btn btn-undo-autofix" id="btn-undo-autofix" style="display:none;width:100%;margin-top:5px">↩ UNDO AUTO-FIX</button>
+            <div style="font-size:9px;color:var(--muted);margin-top:4px;line-height:1.5">
+              Repacks UV islands into a clean non-overlapping grid.
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <button class="btn" id="btn-preview-pack" style="width:100%;border-color:var(--accent);color:var(--accent)">⬡ PREVIEW ISLAND PACKING</button>
+          </div>
+          <div class="dsg-info-box" id="dsg-hint">Load a mesh to validate for disguise Designer.</div>
+        </div>
 
-    <div class="sidebar-section">
-      <button class="btn btn-success" id="btn-separate2" style="width:100%;margin-bottom:6px">SEPARATE BY FACE</button>
-      <button class="btn btn-success" id="btn-export2" style="width:100%">EXPORT OBJ</button>
-    </div>
-  </div>
+        <div class="sidebar-section">
+          <div class="sidebar-title">Export Options</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <input type="checkbox" id="chk-flip-yz" style="accent-color:var(--accent)">
+            <label for="chk-flip-yz" style="cursor:pointer;color:var(--text)">Flip YZ axis <span style="color:var(--muted)">(Z-up → Y-up)</span></label>
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin-bottom:8px;line-height:1.5">
+            Enable if source is 3ds Max / Z-up app.<br>
+            Normals &amp; materials stripped automatically.
+          </div>
+          <button class="btn btn-success" id="btn-separate2" style="width:100%;margin-bottom:6px">SEPARATE BY FACE</button>
+          <button class="btn btn-success" id="btn-export2" style="width:100%">EXPORT FOR DISGUISE</button>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Snap to Grid</div>
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+            <label style="flex:1">Divisions</label>
+            <select id="snap-divisions" style="width:80px">
+              <option value="4">4×4</option>
+              <option value="8" selected>8×8</option>
+              <option value="16">16×16</option>
+              <option value="32">32×32</option>
+              <option value="64">64×64</option>
+            </select>
+          </div>
+          <button class="btn" id="btn-snap-grid" style="width:100%">SNAP UVs TO GRID</button>
+          <div style="font-size:9px;color:var(--muted);margin-top:6px;line-height:1.5">Required for LED panels — UV shells must align with no gaps.</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Template Resolution</div>
+          <div style="font-size:9px;color:var(--muted);margin-bottom:8px;line-height:1.5">Calculate disguise screen resolution from physical dimensions.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+            <div>
+              <label>Width (m)</label>
+              <input type="number" id="phys-w" placeholder="e.g. 4.8" step="0.1" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-family:inherit;font-size:10px;margin-top:3px">
+            </div>
+            <div>
+              <label>Height (m)</label>
+              <input type="number" id="phys-h" placeholder="e.g. 2.7" step="0.1" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-family:inherit;font-size:10px;margin-top:3px">
+            </div>
+          </div>
+          <label>Pixel pitch (mm)</label>
+          <input type="number" id="pixel-pitch" placeholder="e.g. 2.6" step="0.1" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;font-family:inherit;font-size:10px;margin-top:3px;margin-bottom:6px">
+          <button class="btn btn-primary" id="btn-calc-template" style="width:100%;margin-bottom:6px">CALCULATE</button>
+          <div id="template-result" style="font-size:10px;color:var(--muted);line-height:1.7;min-height:40px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid var(--border)">Enter screen dimensions above.</div>
+        </div>
+
+      </div><!-- /group-dsg-body -->
+    </div><!-- /group-dsg -->
+
+    <!-- ══ UV EDITING GROUP ══ -->
+    <div class="section-group group-uv" id="group-uv">
+      <div class="section-group-header" onclick="toggleGroup('group-uv')">
+        <span>◫ UV Editing</span>
+        <span class="group-arrow">▾</span>
+      </div>
+      <div class="section-group-body" id="group-uv-body">
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">UV Operations</div>
+          <div class="ops-grid">
+            <button class="btn btn-danger" id="btn-flip-u2">FLIP U</button>
+            <button class="btn btn-danger" id="btn-flip-v2">FLIP V</button>
+            <button class="btn" id="btn-rotate-uv">ROTATE 90°</button>
+            <button class="btn" id="btn-reset-uv">RESET UVs</button>
+          </div>
+          <button class="btn" id="btn-normalise2" style="width:100%;margin-top:6px">NORMALISE UVs</button>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Selection</div>
+          <label>Apply operations to</label>
+          <select id="face-select-mode">
+            <option value="all">All Faces</option>
+            <option value="selected">Selected Only</option>
+          </select>
+          <div style="margin-top:8px">
+            <label>UV Scale</label>
+            <div class="range-row">
+              <input type="range" id="uv-scale" min="0.1" max="3" step="0.05" value="1">
+              <span class="range-val" id="uv-scale-val">1.00</span>
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <label>UV Offset U</label>
+            <div class="range-row">
+              <input type="range" id="uv-offset-u" min="-1" max="1" step="0.01" value="0">
+              <span class="range-val" id="uv-offset-u-val">0.00</span>
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <label>UV Offset V</label>
+            <div class="range-row">
+              <input type="range" id="uv-offset-v" min="-1" max="1" step="0.01" value="0">
+              <span class="range-val" id="uv-offset-v-val">0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Faces <span id="face-count-label" style="color:var(--muted);font-size:10px"></span></div>
+          <div class="face-list" id="face-list" style="max-height:180px"></div>
+        </div>
+
+      </div><!-- /group-uv-body -->
+    </div><!-- /group-uv -->
+
+    <!-- ══ VIEW GROUP ══ -->
+    <div class="section-group group-view" id="group-view">
+      <div class="section-group-header" onclick="toggleGroup('group-view')">
+        <span>◉ View &amp; Display</span>
+        <span class="group-arrow">▾</span>
+      </div>
+      <div class="section-group-body" id="group-view-body">
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">UV View</div>
+          <div class="ops-grid">
+            <button class="btn btn-toggle" id="btn-checker">CHECKER</button>
+            <button class="btn btn-toggle" id="btn-overlay-toggle">TEXTURE</button>
+            <button class="btn btn-toggle" id="btn-stretch" style="grid-column:span 2">⬤ UV STRETCH HEATMAP</button>
+            <button class="btn btn-toggle" id="btn-seam" style="grid-column:span 2">⬡ UV SEAM HIGHLIGHTS</button>
+            <button class="btn btn-toggle" id="btn-normals" style="grid-column:span 2">↑ FACE NORMALS</button>
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin-top:6px;line-height:1.6;padding:5px 6px;background:rgba(0,0,0,0.2);border:1px solid var(--border)" id="seam-legend" style="display:none">
+            <span style="color:#ff4dff">━━</span> Boundary &nbsp;
+            <span style="color:#ffd700">━━</span> UV split &nbsp;
+            <span style="color:#00ffff">━━</span> Pixel seam
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin-top:4px;line-height:1.6;padding:5px 6px;background:rgba(0,0,0,0.2);border:1px solid var(--border);display:none" id="normals-legend">
+            <span style="color:#00dd55">█</span> Front-facing &nbsp;
+            <span style="color:#ff2222">█</span> Back-facing
+          </div>
+          <div class="overlay-controls" id="overlay-controls">
+            <label style="margin-top:8px;display:block">
+              <input type="file" accept="image/*" id="texture-input" style="display:none">
+              <span class="btn btn-primary" style="display:block;text-align:center;cursor:pointer;margin-top:6px" id="btn-load-texture">LOAD IMAGE</span>
+            </label>
+            <div style="margin-top:8px">
+              <label>Opacity</label>
+              <div class="range-row">
+                <input type="range" id="overlay-opacity" min="0" max="1" step="0.05" value="0.6">
+                <span class="range-val" id="overlay-opacity-val">0.60</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <button class="btn" id="btn-frame-sel" style="font-size:10px;padding:5px 4px">⊙ FRAME SEL</button>
+            <button class="btn" id="btn-frame-all" style="font-size:10px;padding:5px 4px">⊡ FIT ALL</button>
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin-top:5px;line-height:1.5">Shortcut: F · Shift+F</div>
+          <div style="margin-top:8px">
+            <button class="btn btn-success" id="btn-export-png" style="width:100%">EXPORT UV PNG</button>
+          </div>
+        </div>
+
+      </div><!-- /group-view-body -->
+    </div><!-- /group-view -->
+
+   </div><!-- /sidebar-scroll -->
+  </div><!-- /sidebar -->
 
   <!-- 3D VIEWPORT -->
   <div class="viewport" id="viewport">
-    <div class="viewport-label">3D VIEW — DRAG TO ORBIT</div>
+    <div class="viewport-label">3D VIEW — CLICK TO SELECT · DRAG TO ORBIT</div>
+    <!-- Viewport control buttons -->
+    <div style="position:absolute;bottom:36px;right:12px;z-index:4;display:flex;gap:4px">
+      <button id="btn-grid-toggle" title="Toggle ground grid (G)" style="
+        font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;
+        padding:4px 9px;border:1px solid var(--border);background:rgba(15,19,24,0.75);
+        color:var(--accent);border-color:var(--accent);cursor:pointer;text-transform:uppercase;
+        backdrop-filter:blur(4px);transition:all 0.15s;">⊞ GRID</button>
+      <button id="btn-wireframe" title="Toggle wireframe mode (W)" style="
+        font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;
+        padding:4px 9px;border:1px solid var(--border);background:rgba(15,19,24,0.75);
+        color:var(--muted);cursor:pointer;text-transform:uppercase;
+        backdrop-filter:blur(4px);transition:all 0.15s;">⬡ WIRE</button>
+      <button id="btn-fullscreen-3d" title="Fullscreen 3D view (Shift+Space)" style="
+        font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;
+        padding:4px 9px;border:1px solid var(--border);background:rgba(15,19,24,0.75);
+        color:var(--muted);cursor:pointer;text-transform:uppercase;
+        backdrop-filter:blur(4px);transition:all 0.15s;">⤢ FULL</button>
+    </div>
     <div class="corner-tl"></div>
     <div class="corner-br"></div>
     <div class="drop-overlay" id="drop-overlay">
@@ -436,17 +1123,36 @@
       <div class="drop-sub">Wavefront .obj format supported</div>
     </div>
     <canvas id="three-canvas"></canvas>
-    <div class="tooltip">Left drag: Orbit<br>Right drag: Pan<br>Scroll: Zoom</div>
+    <div class="tooltip">Left drag: Orbit<br>Right drag: Pan<br>Scroll: Zoom<br>Click: Select face<br>F: frame selection · Shift+F: fit all</div>
+    <!-- Stretch heatmap legend -->
+    <div id="stretch-legend" style="display:none;position:absolute;bottom:36px;left:12px;align-items:center;gap:8px;z-index:4;pointer-events:none">
+      <span style="font-size:10px;color:rgba(200,216,232,0.7);letter-spacing:1px">STRETCH</span>
+      <div style="width:80px;height:8px;background:linear-gradient(to right,#00ff00,#ffff00,#ff0000);border:1px solid rgba(255,255,255,0.15)"></div>
+      <span style="font-size:9px;color:rgba(200,216,232,0.5)">LOW → HIGH</span>
+    </div>
   </div>
 
   <!-- UV CANVAS -->
   <div class="uv-view" id="uv-view">
     <div class="uv-grid"></div>
-    <div class="uv-view-label">UV MAP — CLICK ISLANDS TO SELECT</div>
+    <div class="uv-view-label" id="uv-view-label">UV MAP — FACE MODE</div>
+    <!-- UV canvas controls -->
+    <div style="position:absolute;bottom:10px;right:12px;z-index:5;display:flex;gap:4px">
+      <button id="btn-fullscreen-uv" title="Fullscreen UV view (Shift+Space)" style="
+        font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;
+        padding:4px 9px;border:1px solid var(--border);background:rgba(5,8,11,0.75);
+        color:var(--muted);cursor:pointer;text-transform:uppercase;
+        backdrop-filter:blur(4px);transition:all 0.15s;">⤢ FULL</button>
+    </div>
+    <div class="sel-mode-bar">
+      <button class="sel-mode-btn active" data-mode="face"  title="Tab key">▣ FACE</button>
+      <button class="sel-mode-btn"        data-mode="edge"  title="Tab key">⟋ EDGE</button>
+      <button class="sel-mode-btn"        data-mode="vert"  title="Tab key">● VERT</button>
+    </div>
     <div class="corner-tl"></div>
     <div class="corner-br"></div>
-    <canvas id="uv-canvas"></canvas>
-    <div class="tooltip">UV space [0,1]²<br>Selected faces highlighted</div>
+    <canvas id="uv-canvas" style="cursor:crosshair"></canvas>
+    <div class="tooltip">Click: select · Shift+click: multi<br>Drag empty: box select · Drag sel: move<br>Scroll: zoom · Alt+drag: pan<br>Tab: cycle mode · F: frame</div>
   </div>
 
 </div>
@@ -456,6 +1162,7 @@
   <div class="status-item"><div class="dot"></div><span id="status-msg">Load an OBJ file to begin editing UV maps</span></div>
   <div class="status-item" style="margin-left:auto"><span id="status-sel">No selection</span></div>
   <div class="status-item"><span id="status-coord">UV: —</span></div>
+  <div class="status-item" style="color:var(--muted);font-size:9px">Press <strong style="color:var(--accent)">?</strong> for shortcuts</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -465,12 +1172,31 @@
 // ═══════════════════════════════════════════════
 const state = {
   originalObjText: null,
-  positions: [],     // [[x,y,z], ...]
-  texcoords: [],     // [[u,v], ...]
-  normals: [],       // [[nx,ny,nz], ...]
-  faces: [],         // [{posIdx:[],uvIdx:[],normIdx:[]}]  (0-based)
-  selectedFaces: new Set(),
+  meshName: 'mesh',
+  positions: [],
+  texcoords: [],
+  normals: [],
+  faces: [],
+  selectedFaces: new Set(),   // Set of face indices
+  selectedEdges: new Set(),   // Set of 'fi:i' strings (face fi, edge starting at vert i)
+  selectedVerts: new Set(),   // Set of UV coord indices (texcoord indices)
+  selectionMode: 'face',      // 'face' | 'edge' | 'vert'
   separated: false,
+  checkerboard: false,
+  overlayEnabled: false,
+  overlayImage: null,
+  overlayOpacity: 0.6,
+  threeTexture: null,
+  undoSnapshot: null,
+  stretchMode: false,
+  undoStack: [],
+  seamMode: false,
+  normalMode: false,
+  wireframeMode: false,    // show wireframe-only in 3D viewport
+  selectionMode: 'face',
+  selectedEdges: new Set(),
+  selectedVerts: new Set(),
+  wireframeMode: false,    // show only wireframe in 3D viewport
 };
 
 // ═══════════════════════════════════════════════
@@ -504,11 +1230,19 @@ scene.add(gridHelper);
 let meshGroup = new THREE.Group();
 scene.add(meshGroup);
 
+// Raycaster for 3D mesh picking
+const raycaster = new THREE.Raycaster();
+// Maps triangle index (bufferGeometry drawRange) → original face index
+let faceTriMap = []; // faceTriMap[triangleIdx] = faceIdx
+
 // Orbit controls (manual)
 let isOrbiting = false, isPanning = false;
 let lastMouse = { x: 0, y: 0 };
 let spherical = { theta: 0.6, phi: 1.1, r: 3.5 };
 let target = new THREE.Vector3(0, 0, 0);
+// Track mousedown position to distinguish click vs drag
+let mouseDownPos = { x: 0, y: 0 };
+const CLICK_THRESHOLD = 5; // px
 
 function updateCamera() {
   const x = target.x + spherical.r * Math.sin(spherical.phi) * Math.sin(spherical.theta);
@@ -519,11 +1253,104 @@ function updateCamera() {
 }
 updateCamera();
 
+updateCamera();
+
+// ── Smooth camera animation ──
+let camAnim = null;
+
+function animateCameraTo(toTarget, toR, toTheta, toPhi, duration = 380) {
+  camAnim = {
+    fromTarget: target.clone(), toTarget: toTarget.clone(),
+    fromR: spherical.r, toR,
+    fromTheta: spherical.theta, toTheta,
+    fromPhi: spherical.phi,   toPhi,
+    duration, start: performance.now(),
+  };
+}
+
+function tickCameraAnim() {
+  if (!camAnim) return;
+  const elapsed = performance.now() - camAnim.start;
+  let t = Math.min(elapsed / camAnim.duration, 1);
+  t = 1 - Math.pow(1 - t, 3); // ease-out cubic
+  target.lerpVectors(camAnim.fromTarget, camAnim.toTarget, t);
+  spherical.r     = camAnim.fromR     + (camAnim.toR     - camAnim.fromR)     * t;
+  spherical.theta = camAnim.fromTheta + (camAnim.toTheta - camAnim.fromTheta) * t;
+  spherical.phi   = camAnim.fromPhi   + (camAnim.toPhi   - camAnim.fromPhi)   * t;
+  updateCamera();
+  if (t >= 1) camAnim = null;
+}
+
+// ── Zoom to selection (3D) ──
+function zoomToSelection() {
+  const targetFaces = state.selectedFaces.size > 0
+    ? [...state.selectedFaces]
+    : state.faces.map((_, i) => i);
+  if (targetFaces.length === 0 || state.faces.length === 0) return;
+
+  let minX=Infinity, minY=Infinity, minZ=Infinity;
+  let maxX=-Infinity, maxY=-Infinity, maxZ=-Infinity;
+  targetFaces.forEach(fi => {
+    const face = state.faces[fi];
+    if (!face) return;
+    face.posIdx.forEach(pi => {
+      const p = state.positions[pi]; if (!p) return;
+      if (p[0]<minX) minX=p[0]; if (p[0]>maxX) maxX=p[0];
+      if (p[1]<minY) minY=p[1]; if (p[1]>maxY) maxY=p[1];
+      if (p[2]<minZ) minZ=p[2]; if (p[2]>maxZ) maxZ=p[2];
+    });
+  });
+
+  const localCentre = new THREE.Vector3(
+    (minX+maxX)/2, (minY+maxY)/2, (minZ+maxZ)/2
+  );
+  const worldCentre = localCentre.applyMatrix4(meshGroup.matrixWorld);
+
+  const s = meshGroup.scale.x;
+  const diagWorld = Math.sqrt(
+    Math.pow(maxX-minX,2) + Math.pow(maxY-minY,2) + Math.pow(maxZ-minZ,2)
+  ) * s;
+
+  const fovRad = (camera.fov * Math.PI) / 180;
+  const newR = Math.max(0.4, (diagWorld / 2) / Math.tan(fovRad / 2) * 1.6);
+
+  animateCameraTo(worldCentre, newR, spherical.theta, spherical.phi);
+  setStatus(state.selectedFaces.size > 0
+    ? `Framed ${state.selectedFaces.size} selected face(s) — F to frame, Shift+F to fit all`
+    : 'Fit all faces in view');
+}
+
+// ── Zoom to selection (UV canvas) ──
+function zoomToSelectionUV() {
+  const targetFaces = state.selectedFaces.size > 0
+    ? [...state.selectedFaces]
+    : state.faces.map((_, i) => i);
+  if (targetFaces.length === 0 || state.texcoords.length === 0) return;
+
+  let minU=Infinity, maxU=-Infinity, minV=Infinity, maxV=-Infinity;
+  targetFaces.forEach(fi => {
+    const face = state.faces[fi]; if (!face) return;
+    face.uvIdx.forEach(ui => {
+      const uv = state.texcoords[ui]; if (!uv) return;
+      if (uv[0]<minU) minU=uv[0]; if (uv[0]>maxU) maxU=uv[0];
+      if (uv[1]<minV) minV=uv[1]; if (uv[1]>maxV) maxV=uv[1];
+    });
+  });
+  if (!isFinite(minU)) return;
+
+  const padU = Math.max((maxU-minU)*0.2, 0.04);
+  const padV = Math.max((maxV-minV)*0.2, 0.04);
+  state.uvViewport = { minU: minU-padU, maxU: maxU+padU, minV: minV-padV, maxV: maxV+padV };
+  drawUVs();
+}
+
 canvas3d.addEventListener('mousedown', e => {
   if (e.button === 0) isOrbiting = true;
   if (e.button === 2) isPanning = true;
   lastMouse = { x: e.clientX, y: e.clientY };
+  mouseDownPos = { x: e.clientX, y: e.clientY };
 });
+
 window.addEventListener('mousemove', e => {
   if (!isOrbiting && !isPanning) return;
   const dx = e.clientX - lastMouse.x;
@@ -543,17 +1370,80 @@ window.addEventListener('mousemove', e => {
     target.addScaledVector(up, dy * 0.004 * spherical.r / 3);
   }
   updateCamera();
+  // Rebuild normal arrows when camera moves (facing direction changes with view angle)
+  if (state.normalMode) buildNormalArrows();
 });
-window.addEventListener('mouseup', () => { isOrbiting = false; isPanning = false; });
+
+window.addEventListener('mouseup', e => {
+  const wasDragging = Math.abs(e.clientX - mouseDownPos.x) > CLICK_THRESHOLD ||
+                      Math.abs(e.clientY - mouseDownPos.y) > CLICK_THRESHOLD;
+
+  if (e.button === 0 && !wasDragging && state.faces.length > 0) {
+    // It's a click — raycast to pick a face
+    const rect = canvas3d.getBoundingClientRect();
+    const ndcX = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
+    const ndcY = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
+    raycaster.setFromCamera({ x: ndcX, y: ndcY }, camera);
+
+    // Only test the first (solid) mesh child
+    const meshChild = meshGroup.children[0];
+    if (meshChild) {
+      const hits = raycaster.intersectObject(meshChild, false);
+      if (hits.length > 0) {
+        const triIdx = hits[0].faceIndex; // triangle index in buffer geometry
+        const faceIdx = faceTriMap[triIdx];
+        if (faceIdx !== undefined) {
+          if (e.shiftKey) {
+            state.selectedFaces.has(faceIdx)
+              ? state.selectedFaces.delete(faceIdx)
+              : state.selectedFaces.add(faceIdx);
+          } else {
+            if (state.selectedFaces.has(faceIdx) && state.selectedFaces.size === 1) {
+              state.selectedFaces.clear();
+            } else {
+              state.selectedFaces.clear();
+              state.selectedFaces.add(faceIdx);
+            }
+          }
+          updateSelection();
+          // Scroll face list item into view
+          const listEl = document.querySelector(`.face-item[data-fi="${faceIdx}"]`);
+          if (listEl) listEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      } else if (!e.shiftKey) {
+        // Clicked empty space — deselect
+        state.selectedFaces.clear();
+        updateSelection();
+      }
+    }
+  }
+
+  isOrbiting = false;
+  isPanning = false;
+});
 canvas3d.addEventListener('wheel', e => {
   spherical.r = Math.max(0.5, Math.min(50, spherical.r + e.deltaY * 0.004));
   updateCamera();
   e.preventDefault();
 }, { passive: false });
+canvas3d.addEventListener('mousemove', e => {
+  if (isOrbiting || isPanning || state.faces.length === 0) return;
+  const rect = canvas3d.getBoundingClientRect();
+  const ndcX = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
+  const ndcY = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
+  raycaster.setFromCamera({ x: ndcX, y: ndcY }, camera);
+  const meshChild = meshGroup.children[0];
+  if (meshChild) {
+    const hits = raycaster.intersectObject(meshChild, false);
+    canvas3d.style.cursor = hits.length > 0 ? 'pointer' : 'default';
+  }
+});
+
 canvas3d.addEventListener('contextmenu', e => e.preventDefault());
 
 function animate() {
   requestAnimationFrame(animate);
+  tickCameraAnim();
   resizeViewport();
   renderer.render(scene, camera);
 }
@@ -589,51 +1479,462 @@ function uvToCanvas(u, v) {
   const size = Math.min(uvCanvas.width, uvCanvas.height) - pad * 2;
   const ox = (uvCanvas.width - size) / 2;
   const oy = (uvCanvas.height - size) / 2;
+
+  if (state.uvViewport) {
+    const { minU, maxU, minV, maxV } = state.uvViewport;
+    const rangeU = maxU - minU || 1;
+    const rangeV = maxV - minV || 1;
+    return {
+      x: ox + ((u - minU) / rangeU) * size,
+      y: oy + (1 - (v - minV) / rangeV) * size,
+    };
+  }
+
   return { x: ox + u * size, y: oy + (1 - v) * size };
+}
+
+// ═══════════════════════════════════════════════
+//  CHECKERBOARD PATTERN GENERATOR
+// ═══════════════════════════════════════════════
+function makeCheckerCanvas(size, squares) {
+  const cc = document.createElement('canvas');
+  cc.width = size; cc.height = size;
+  const cx = cc.getContext('2d');
+  const cell = size / squares;
+  for (let row = 0; row < squares; row++) {
+    for (let col = 0; col < squares; col++) {
+      cx.fillStyle = (row + col) % 2 === 0 ? '#cccccc' : '#888888';
+      cx.fillRect(col * cell, row * cell, cell, cell);
+    }
+  }
+  return cc;
+}
+
+// ═══════════════════════════════════════════════
+//  SEAM DETECTION ENGINE
+//
+//  Three seam types:
+//   SPLIT   — 3D edge shared by 2 faces but UV
+//             verts differ (texture discontinuity)
+//   BOUNDARY — UV edge with no 3D neighbour
+//             (island perimeter)
+//   BORDER  — any seam edge whose UV coord(s)
+//             sit exactly on 0 or 1 (pixel seam)
+//
+//  Returns an array of seam segments:
+//   { ax,ay,bx,by, type:'split'|'boundary'|'border' }
+// ═══════════════════════════════════════════════
+function computeSeams() {
+  const { positions, texcoords, faces } = state;
+  if (!faces.length) return [];
+
+  const SNAP = 1e-5; // coordinate snap tolerance
+
+  function posKey(pi) {
+    const p = positions[pi];
+    if (!p) return `${pi}`;
+    return `${Math.round(p[0]/SNAP)},${Math.round(p[1]/SNAP)},${Math.round(p[2]/SNAP)}`;
+  }
+
+  function uvKey(ui) {
+    const uv = texcoords[ui];
+    if (!uv) return `${ui}`;
+    return `${Math.round(uv[0]/SNAP)},${Math.round(uv[1]/SNAP)}`;
+  }
+
+  function onBorder(ui) {
+    const uv = texcoords[ui];
+    if (!uv) return false;
+    const THRESH = 0.002;
+    return (
+      Math.abs(uv[0])     < THRESH || Math.abs(uv[0] - 1) < THRESH ||
+      Math.abs(uv[1])     < THRESH || Math.abs(uv[1] - 1) < THRESH
+    );
+  }
+
+  // half-edge map: posKey(a)+'>'+posKey(b) → [{fi, uvA, uvB}]
+  const edgeMap = new Map();
+
+  faces.forEach((face, fi) => {
+    const n = face.posIdx.length;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const piA = face.posIdx[i], piB = face.posIdx[j];
+      const uiA = face.uvIdx[i],  uiB = face.uvIdx[j];
+      // canonical direction: smaller posKey first
+      const kA = posKey(piA), kB = posKey(piB);
+      const fwd = kA < kB;
+      const edgeKey = fwd ? `${kA}>${kB}` : `${kB}>${kA}`;
+      if (!edgeMap.has(edgeKey)) edgeMap.set(edgeKey, []);
+      edgeMap.get(edgeKey).push({
+        fi,
+        ukA: fwd ? uvKey(uiA) : uvKey(uiB),
+        ukB: fwd ? uvKey(uiB) : uvKey(uiA),
+        uiA, uiB,
+      });
+    }
+  });
+
+  const seams = [];
+
+  edgeMap.forEach(entries => {
+    if (entries.length === 1) {
+      // Boundary edge — island perimeter
+      const { uiA, uiB } = entries[0];
+      const uvA = texcoords[uiA], uvB = texcoords[uiB];
+      if (!uvA || !uvB) return;
+      const isBorder = onBorder(uiA) || onBorder(uiB);
+      seams.push({
+        ax: uvA[0], ay: uvA[1],
+        bx: uvB[0], by: uvB[1],
+        type: isBorder ? 'border' : 'boundary',
+      });
+    } else if (entries.length >= 2) {
+      // Shared edge — check if UV coords match across faces
+      const e0 = entries[0], e1 = entries[1];
+      const isUVSplit = (e0.ukA !== e1.ukA || e0.ukB !== e1.ukB) &&
+                        (e0.ukA !== e1.ukB || e0.ukB !== e1.ukA);
+      if (isUVSplit) {
+        const uvA = texcoords[e0.uiA], uvB = texcoords[e0.uiB];
+        if (!uvA || !uvB) return;
+        const isBorder = onBorder(e0.uiA) || onBorder(e0.uiB);
+        seams.push({
+          ax: uvA[0], ay: uvA[1],
+          bx: uvB[0], by: uvB[1],
+          type: isBorder ? 'border' : 'split',
+        });
+      }
+    }
+  });
+
+  return seams;
+}
+
+// ═══════════════════════════════════════════════
+//  SEAM DRAW PASS — called from drawUVs
+// ═══════════════════════════════════════════════
+function drawSeams(seams) {
+  if (!seams || seams.length === 0) return;
+
+  // Draw in order: split first (underneath), border on top
+  const order = ['split', 'boundary', 'border'];
+
+  order.forEach(type => {
+    const subset = seams.filter(s => s.type === type);
+    if (!subset.length) return;
+
+    uvCtx.save();
+    uvCtx.lineWidth   = type === 'border'   ? 3   : type === 'split' ? 2   : 1.2;
+    uvCtx.strokeStyle = type === 'border'   ? '#00ffff'
+                      : type === 'split'    ? '#ffd700'
+                      :                       '#ff4dff';
+    uvCtx.shadowBlur  = type === 'border'   ? 6   : type === 'split' ? 4   : 2;
+    uvCtx.shadowColor = uvCtx.strokeStyle;
+
+    if (type === 'border') {
+      // Animated pulse via opacity oscillation stored on canvas
+      const t = (Date.now() % 1800) / 1800;
+      uvCtx.globalAlpha = 0.6 + 0.4 * Math.sin(t * Math.PI * 2);
+    }
+
+    uvCtx.setLineDash(type === 'boundary' ? [3, 3] : []);
+    uvCtx.beginPath();
+
+    subset.forEach(({ ax, ay, bx, by }) => {
+      const a = uvToCanvas(ax, ay);
+      const b = uvToCanvas(bx, by);
+      uvCtx.moveTo(a.x, a.y);
+      uvCtx.lineTo(b.x, b.y);
+    });
+
+    uvCtx.stroke();
+    uvCtx.setLineDash([]);
+    uvCtx.restore();
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  SEAM DRAW ON 3D MESH — line segments in world
+// ═══════════════════════════════════════════════
+function buildSeamLines(seams) {
+  // Remove existing seam line group
+  const old = scene.getObjectByName('seamLines');
+  if (old) scene.remove(old);
+  if (!seams || seams.length === 0 || !state.seamMode) return;
+
+  // We need to draw seams in 3D — find the 3D edge for each UV seam
+  // by matching UV coords back to face/vertex positions
+  const { positions, texcoords, faces } = state;
+  const SNAP = 1e-5;
+
+  function uvKey(uiA, uiB) {
+    const a = texcoords[uiA], b = texcoords[uiB];
+    if (!a || !b) return null;
+    const kA = `${Math.round(a[0]/SNAP)},${Math.round(a[1]/SNAP)}`;
+    const kB = `${Math.round(b[0]/SNAP)},${Math.round(b[1]/SNAP)}`;
+    return kA < kB ? `${kA}|${kB}` : `${kB}|${kA}`;
+  }
+
+  // Build UV-edge → 3D-positions map from faces
+  const uvEdgeTo3D = new Map();
+  faces.forEach(face => {
+    const n = face.posIdx.length;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const uiA = face.uvIdx[i], uiB = face.uvIdx[j];
+      const piA = face.posIdx[i], piB = face.posIdx[j];
+      const key = uvKey(uiA, uiB);
+      if (key && !uvEdgeTo3D.has(key)) {
+        const pA = positions[piA] || [0,0,0];
+        const pB = positions[piB] || [0,0,0];
+        uvEdgeTo3D.set(key, { pA, pB });
+      }
+    }
+  });
+
+  const SEAM_COLORS = {
+    border:   0x00ffff,
+    split:    0xffd700,
+    boundary: 0xff4dff,
+  };
+
+  const lineGroup = new THREE.Group();
+  lineGroup.name = 'seamLines';
+
+  Object.entries(SEAM_COLORS).forEach(([type, color]) => {
+    const pts = [];
+    seams.filter(s => s.type === type).forEach(({ ax, ay, bx, by }) => {
+      const a = texcoords.find(uv => uv &&
+        Math.abs(uv[0] - ax) < SNAP*10 && Math.abs(uv[1] - ay) < SNAP*10);
+      const b = texcoords.find(uv => uv &&
+        Math.abs(uv[0] - bx) < SNAP*10 && Math.abs(uv[1] - by) < SNAP*10);
+      const uiA = a ? texcoords.indexOf(a) : -1;
+      const uiB = b ? texcoords.indexOf(b) : -1;
+      const key = uvKey(uiA, uiB);
+      const edge = key ? uvEdgeTo3D.get(key) : null;
+      if (edge) {
+        pts.push(...edge.pA, ...edge.pB);
+      }
+    });
+    if (pts.length === 0) return;
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    const mat = new THREE.LineBasicMaterial({
+      color, linewidth: 2, depthTest: false, transparent: true, opacity: 0.85,
+    });
+    lineGroup.add(new THREE.LineSegments(geo, mat));
+  });
+
+  // Apply same transform as meshGroup
+  lineGroup.position.copy(meshGroup.position);
+  lineGroup.scale.copy(meshGroup.scale);
+  scene.add(lineGroup);
+}
+
+// ═══════════════════════════════════════════════
+//  NORMAL DIRECTION VISUALISER
+//  Green = front-facing (normal toward camera)
+//  Red   = back-facing  (normal away from camera)
+//  Lines protrude from face centroid along normal.
+//  Semi-transparent face fill adds colour context.
+// ═══════════════════════════════════════════════
+function buildNormalArrows() {
+  const old = scene.getObjectByName('normalArrows');
+  if (old) scene.remove(old);
+  if (!state.normalMode || state.faces.length === 0) return;
+
+  const { positions, faces } = state;
+
+  // Measure bbox to scale arrow length proportionally
+  let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity, minZ=Infinity, maxZ=-Infinity;
+  positions.forEach(([x,y,z]) => {
+    if(x<minX)minX=x; if(x>maxX)maxX=x;
+    if(y<minY)minY=y; if(y>maxY)maxY=y;
+    if(z<minZ)minZ=z; if(z>maxZ)maxZ=z;
+  });
+  const bboxSize = Math.max(maxX-minX, maxY-minY, maxZ-minZ) || 1;
+  const ARROW_LEN = bboxSize * 0.1; // 10% of bbox
+
+  const camDir = new THREE.Vector3();
+  camera.getWorldDirection(camDir); // points into scene
+
+  const group = new THREE.Group();
+  group.name = 'normalArrows';
+
+  const fwdShaft = []; // green lines
+  const bkdShaft = []; // red lines
+  const fwdFill  = []; // green face fill
+  const bkdFill  = []; // red face fill
+
+  faces.forEach(face => {
+    if (face.posIdx.length < 3) return;
+    const pA = new THREE.Vector3(...(positions[face.posIdx[0]] || [0,0,0]));
+    const pB = new THREE.Vector3(...(positions[face.posIdx[1]] || [0,0,0]));
+    const pC = new THREE.Vector3(...(positions[face.posIdx[2]] || [0,0,0]));
+
+    // Face centroid
+    const centroid = new THREE.Vector3()
+      .addVectors(pA, pB).add(pC).divideScalar(3);
+
+    // Face normal via cross product
+    const AB = new THREE.Vector3().subVectors(pB, pA);
+    const AC = new THREE.Vector3().subVectors(pC, pA);
+    const normal = new THREE.Vector3().crossVectors(AB, AC).normalize();
+
+    // camDir points INTO scene; dot < 0 means normal faces TOWARD camera = front
+    const isFront = normal.dot(camDir) < 0;
+
+    const tip = centroid.clone().addScaledVector(normal, ARROW_LEN);
+
+    if (isFront) {
+      fwdShaft.push(centroid.x, centroid.y, centroid.z, tip.x, tip.y, tip.z);
+      fwdFill.push(pA.x,pA.y,pA.z, pB.x,pB.y,pB.z, pC.x,pC.y,pC.z);
+    } else {
+      bkdShaft.push(centroid.x, centroid.y, centroid.z, tip.x, tip.y, tip.z);
+      bkdFill.push(pA.x,pA.y,pA.z, pB.x,pB.y,pB.z, pC.x,pC.y,pC.z);
+    }
+  });
+
+  function addLines(pts, color) {
+    if (!pts.length) return;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    group.add(new THREE.LineSegments(geo,
+      new THREE.LineBasicMaterial({ color, depthTest: false, transparent: true, opacity: 0.95 })
+    ));
+  }
+
+  function addFill(verts, color) {
+    if (!verts.length) return;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    group.add(new THREE.Mesh(geo,
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.30, side: THREE.FrontSide, depthTest: true })
+    ));
+  }
+
+  addLines(fwdShaft, 0x00dd55); // bright green shafts
+  addLines(bkdShaft, 0xff2222); // bright red shafts
+  addFill (fwdFill,  0x00c040); // green fill — front faces
+  addFill (bkdFill,  0xff1111); // red fill   — back faces
+
+  group.position.copy(meshGroup.position);
+  group.scale.copy(meshGroup.scale);
+  scene.add(group);
+}
+
+function getThemeColors() {
+  const s = getComputedStyle(document.documentElement);
+  return {
+    accent:  s.getPropertyValue('--accent').trim()  || '#00e5ff',
+    accent2: s.getPropertyValue('--accent2').trim() || '#ff6b35',
+    bg:      s.getPropertyValue('--uv-bg').trim()   || '#05080b',
+    muted:   s.getPropertyValue('--muted').trim()   || '#4a5a6a',
+  };
 }
 
 function drawUVs() {
   const w = uvCanvas.width, h = uvCanvas.height;
   uvCtx.clearRect(0, 0, w, h);
+  const TC = getThemeColors();
+
+  const pad = 40;
+  const size = Math.min(w, h) - pad * 2;
+  const ox = (w - size) / 2;
+  const oy = (h - size) / 2;
 
   if (state.faces.length === 0) {
-    uvCtx.fillStyle = 'rgba(0,229,255,0.05)';
-    const pad = 40;
-    const size = Math.min(w, h) - pad * 2;
-    const ox = (w - size) / 2;
-    const oy = (h - size) / 2;
-    uvCtx.fillRect(ox, oy, size, size);
-    uvCtx.strokeStyle = 'rgba(0,229,255,0.2)';
+    // Draw background even when empty
+    if (state.checkerboard) {
+      const checker = makeCheckerCanvas(256, 8);
+      const pat = uvCtx.createPattern(checker, 'repeat');
+      uvCtx.save();
+      uvCtx.globalAlpha = 0.25;
+      uvCtx.fillStyle = pat;
+      uvCtx.fillRect(ox, oy, size, size);
+      uvCtx.restore();
+    } else {
+      uvCtx.fillStyle = TC.accent + '0c';
+      uvCtx.fillRect(ox, oy, size, size);
+    }
+    uvCtx.strokeStyle = TC.accent + '33';
     uvCtx.lineWidth = 1;
     uvCtx.strokeRect(ox, oy, size, size);
-
-    uvCtx.fillStyle = 'rgba(74,90,106,0.6)';
+    uvCtx.fillStyle = TC.muted;
     uvCtx.font = '12px "Share Tech Mono"';
     uvCtx.textAlign = 'center';
     uvCtx.fillText('No UV data loaded', w / 2, h / 2);
     return;
   }
 
-  // Background UV space
-  const pad = 40;
-  const size = Math.min(w, h) - pad * 2;
-  const ox = (w - size) / 2;
-  const oy = (h - size) / 2;
+  // ── Background: checkerboard or flat ──
+  if (state.checkerboard) {
+    const checker = makeCheckerCanvas(512, 16);
+    const pat = uvCtx.createPattern(checker, 'no-repeat');
+    uvCtx.save();
+    uvCtx.translate(ox, oy);
+    uvCtx.scale(size / 512, size / 512);
+    uvCtx.fillStyle = pat;
+    uvCtx.fillRect(0, 0, 512, 512);
+    uvCtx.restore();
+  } else {
+    uvCtx.fillStyle = TC.accent + '08';
+    uvCtx.fillRect(ox, oy, size, size);
+  }
 
-  uvCtx.fillStyle = 'rgba(0,229,255,0.03)';
-  uvCtx.fillRect(ox, oy, size, size);
-  uvCtx.strokeStyle = 'rgba(0,229,255,0.25)';
+  // Texture overlay
+  if (state.overlayEnabled && state.overlayImage) {
+    uvCtx.save();
+    uvCtx.globalAlpha = state.overlayOpacity;
+    uvCtx.drawImage(state.overlayImage, ox, oy, size, size);
+    uvCtx.restore();
+  }
+
+  // UV space border
+  uvCtx.strokeStyle = TC.accent + '40';
   uvCtx.lineWidth = 1.5;
   uvCtx.strokeRect(ox, oy, size, size);
 
-  // Draw each face's UV polygon
+  // ── Out-of-bounds warning zones (disguise: UVs MUST be 0–1) ──
+  if (state.faces.length > 0) {
+    uvCtx.save();
+    uvCtx.fillStyle = 'rgba(255,107,53,0.12)';
+    // Left OOB
+    uvCtx.fillRect(0, 0, ox, uvCanvas.height);
+    // Right OOB
+    uvCtx.fillRect(ox + size, 0, uvCanvas.width - ox - size, uvCanvas.height);
+    // Top OOB
+    uvCtx.fillRect(ox, 0, size, oy);
+    // Bottom OOB
+    uvCtx.fillRect(ox, oy + size, size, uvCanvas.height - oy - size);
+    // OOB label
+    uvCtx.fillStyle = 'rgba(255,107,53,0.5)';
+    uvCtx.font = '9px "Share Tech Mono"';
+    uvCtx.textAlign = 'left';
+    uvCtx.fillText('OOB', 4, oy + 12);
+    uvCtx.restore();
+  }
+
+  // ── Draw UV faces — base layer always drawn ──
   const FACE_COLORS = ['#00e5ff', '#ff6b35', '#7fff6b', '#ffd700', '#ff4dff', '#4dffd6'];
 
   state.faces.forEach((face, fi) => {
     if (!face.uvIdx || face.uvIdx.length < 3) return;
-    const isSelected = state.selectedFaces.has(fi);
     const color = FACE_COLORS[fi % FACE_COLORS.length];
 
+    // Determine if this face is "involved" in the current selection
+    let isActiveFace = false;
+    if (state.selectionMode === 'face') {
+      isActiveFace = state.selectedFaces.has(fi);
+    } else if (state.selectionMode === 'edge') {
+      // face involved if any of its edges are selected
+      isActiveFace = face.uvIdx.some((_, i) => state.selectedEdges.has(`${fi}:${i}`));
+    } else if (state.selectionMode === 'vert') {
+      isActiveFace = face.uvIdx.some(ui => state.selectedVerts.has(ui));
+    }
+
+    // Draw face polygon
     uvCtx.beginPath();
     face.uvIdx.forEach((ui, i) => {
       const uv = state.texcoords[ui];
@@ -644,7 +1945,7 @@ function drawUVs() {
     });
     uvCtx.closePath();
 
-    if (isSelected) {
+    if (isActiveFace && state.selectionMode === 'face') {
       uvCtx.fillStyle = color + '33';
       uvCtx.fill();
       uvCtx.strokeStyle = color;
@@ -652,13 +1953,124 @@ function drawUVs() {
     } else {
       uvCtx.fillStyle = 'rgba(255,255,255,0.03)';
       uvCtx.fill();
-      uvCtx.strokeStyle = 'rgba(200,216,232,0.25)';
+      uvCtx.strokeStyle = state.overlayEnabled ? 'rgba(255,255,255,0.55)' : 'rgba(200,216,232,0.18)';
       uvCtx.lineWidth = 0.8;
     }
     uvCtx.stroke();
+  });
 
-    // Vertex dots on selected
-    if (isSelected) {
+  // ── EDGE MODE: draw all edges, highlight selected ──
+  if (state.selectionMode === 'edge') {
+    state.faces.forEach((face, fi) => {
+      if (!face.uvIdx || face.uvIdx.length < 3) return;
+      const n = face.uvIdx.length;
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        const uvA = state.texcoords[face.uvIdx[i]];
+        const uvB = state.texcoords[face.uvIdx[j]];
+        if (!uvA || !uvB) continue;
+        const ptA = uvToCanvas(uvA[0], uvA[1]);
+        const ptB = uvToCanvas(uvB[0], uvB[1]);
+        const isSelEdge = state.selectedEdges.has(`${fi}:${i}`);
+
+        uvCtx.beginPath();
+        uvCtx.moveTo(ptA.x, ptA.y);
+        uvCtx.lineTo(ptB.x, ptB.y);
+
+        if (isSelEdge) {
+          uvCtx.strokeStyle = '#00e5ff';
+          uvCtx.lineWidth = 3;
+          uvCtx.shadowColor = '#00e5ff';
+          uvCtx.shadowBlur = 6;
+        } else {
+          uvCtx.strokeStyle = 'rgba(200,216,232,0.35)';
+          uvCtx.lineWidth = 1;
+          uvCtx.shadowBlur = 0;
+        }
+        uvCtx.stroke();
+        uvCtx.shadowBlur = 0;
+
+        // Draw midpoint dot for hover feedback on unselected
+        if (!isSelEdge) {
+          const mx = (ptA.x + ptB.x) / 2;
+          const my = (ptA.y + ptB.y) / 2;
+          uvCtx.beginPath();
+          uvCtx.arc(mx, my, 2, 0, Math.PI * 2);
+          uvCtx.fillStyle = 'rgba(200,216,232,0.2)';
+          uvCtx.fill();
+        }
+      }
+    });
+
+    // Draw selected edge midpoint markers
+    state.selectedEdges.forEach(key => {
+      const [fis, is] = key.split(':').map(Number);
+      const face = state.faces[fis];
+      if (!face) return;
+      const j = (is + 1) % face.uvIdx.length;
+      const uvA = state.texcoords[face.uvIdx[is]];
+      const uvB = state.texcoords[face.uvIdx[j]];
+      if (!uvA || !uvB) return;
+      const ptA = uvToCanvas(uvA[0], uvA[1]);
+      const ptB = uvToCanvas(uvB[0], uvB[1]);
+      const mx = (ptA.x + ptB.x) / 2;
+      const my = (ptA.y + ptB.y) / 2;
+      uvCtx.beginPath();
+      uvCtx.arc(mx, my, 4, 0, Math.PI * 2);
+      uvCtx.fillStyle = '#00e5ff';
+      uvCtx.fill();
+      // Endpoint squares
+      [ptA, ptB].forEach(pt => {
+        uvCtx.fillStyle = '#00e5ff88';
+        uvCtx.fillRect(pt.x - 3, pt.y - 3, 6, 6);
+      });
+    });
+  }
+
+  // ── VERT MODE: draw all verts, highlight selected ──
+  if (state.selectionMode === 'vert') {
+    // Collect unique UV verts per position on canvas
+    const drawn = new Map(); // uvIdx → canvas pt (deduplicate overlapping verts)
+    state.faces.forEach(face => {
+      face.uvIdx.forEach(ui => {
+        if (drawn.has(ui)) return;
+        const uv = state.texcoords[ui];
+        if (!uv) return;
+        drawn.set(ui, uvToCanvas(uv[0], uv[1]));
+      });
+    });
+
+    drawn.forEach((pt, ui) => {
+      const isSel = state.selectedVerts.has(ui);
+      uvCtx.beginPath();
+      uvCtx.arc(pt.x, pt.y, isSel ? 5 : 3, 0, Math.PI * 2);
+      if (isSel) {
+        uvCtx.fillStyle = '#00e5ff';
+        uvCtx.shadowColor = '#00e5ff';
+        uvCtx.shadowBlur = 8;
+      } else {
+        uvCtx.fillStyle = 'rgba(200,216,232,0.5)';
+        uvCtx.shadowBlur = 0;
+      }
+      uvCtx.fill();
+      uvCtx.shadowBlur = 0;
+
+      if (isSel) {
+        // Ring
+        uvCtx.beginPath();
+        uvCtx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
+        uvCtx.strokeStyle = '#00e5ff66';
+        uvCtx.lineWidth = 1.5;
+        uvCtx.stroke();
+      }
+    });
+  }
+
+  // ── FACE MODE: show vert dots on selected faces ──
+  if (state.selectionMode === 'face') {
+    state.faces.forEach((face, fi) => {
+      if (!state.selectedFaces.has(fi)) return;
+      const color = FACE_COLORS[fi % FACE_COLORS.length];
       face.uvIdx.forEach(ui => {
         const uv = state.texcoords[ui];
         if (!uv) return;
@@ -668,72 +2080,395 @@ function drawUVs() {
         uvCtx.fillStyle = color;
         uvCtx.fill();
       });
-    }
-  });
+    });
+  }
 
-  // Axis labels
-  uvCtx.fillStyle = 'rgba(74,90,106,0.8)';
+  // ── Seam highlight overlay ──
+  if (state.seamMode) {
+    const seams = computeSeams();
+    drawSeams(seams);
+  }
+
+  // Axis labels — show viewport range when zoomed
+  uvCtx.fillStyle = TC.muted;
   uvCtx.font = '10px "Share Tech Mono"';
-  uvCtx.textAlign = 'center';
-  uvCtx.fillText('U →', ox + size + 18, oy + size + 2);
-  uvCtx.textAlign = 'left';
-  uvCtx.fillText('V ↑', ox - 4, oy - 6);
+  if (state.uvViewport) {
+    const { minU, maxU, minV, maxV } = state.uvViewport;
+    uvCtx.textAlign = 'center';
+    uvCtx.fillText(`U [${minU.toFixed(2)}–${maxU.toFixed(2)}]`, ox + size/2, oy + size + 14);
+    // Zoomed badge
+    uvCtx.fillStyle = TC.accent + '99';
+    uvCtx.font = '9px "Share Tech Mono"';
+    uvCtx.textAlign = 'right';
+    uvCtx.fillText('ZOOMED — dbl-click to reset', ox + size, oy - 6);
+  } else {
+    uvCtx.textAlign = 'center';
+    uvCtx.fillText('U →', ox + size + 18, oy + size + 2);
+    uvCtx.textAlign = 'left';
+    uvCtx.fillText('V ↑', ox - 4, oy - 6);
+  }
+
+  // ── Out-of-bounds UV warning (disguise: UVs must be 0–1) ──
+  state.faces.forEach((face) => {
+    if (!face.uvIdx || face.uvIdx.length < 3) return;
+    const hasOOB = face.uvIdx.some(ui => {
+      const uv = state.texcoords[ui];
+      if (!uv) return false;
+      return uv[0] < -0.001 || uv[0] > 1.001 || uv[1] < -0.001 || uv[1] > 1.001;
+    });
+    if (!hasOOB) return;
+    uvCtx.beginPath();
+    face.uvIdx.forEach((ui, i) => {
+      const uv = state.texcoords[ui];
+      if (!uv) return;
+      const pt = uvToCanvas(uv[0], uv[1]);
+      if (i === 0) uvCtx.moveTo(pt.x, pt.y); else uvCtx.lineTo(pt.x, pt.y);
+    });
+    uvCtx.closePath();
+    uvCtx.strokeStyle = '#ff4040';
+    uvCtx.lineWidth = 2;
+    uvCtx.setLineDash([4, 3]);
+    uvCtx.stroke();
+    uvCtx.setLineDash([]);
+  });
 }
 
-uvCanvas.addEventListener('click', e => {
-  if (state.faces.length === 0) return;
-  const rect = uvCanvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+// ── Hit test: find closest edge to canvas point ──
+function hitTestEdge(mx, my, threshold = 8) {
+  let bestKey = null, bestDist = threshold;
+  state.faces.forEach((face, fi) => {
+    if (!face.uvIdx || face.uvIdx.length < 3) return;
+    const n = face.uvIdx.length;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const uvA = state.texcoords[face.uvIdx[i]];
+      const uvB = state.texcoords[face.uvIdx[j]];
+      if (!uvA || !uvB) continue;
+      const ptA = uvToCanvas(uvA[0], uvA[1]);
+      const ptB = uvToCanvas(uvB[0], uvB[1]);
+      const dist = pointToSegmentDist(mx, my, ptA.x, ptA.y, ptB.x, ptB.y);
+      if (dist < bestDist) { bestDist = dist; bestKey = `${fi}:${i}`; }
+    }
+  });
+  return bestKey;
+}
 
-  // Convert click to UV space
+// ── Hit test: find closest UV vertex to canvas point ──
+function hitTestVert(mx, my, threshold = 10) {
+  let bestUI = -1, bestDist = threshold;
+  const seen = new Set();
+  state.faces.forEach(face => {
+    face.uvIdx.forEach(ui => {
+      if (seen.has(ui)) return; seen.add(ui);
+      const uv = state.texcoords[ui];
+      if (!uv) return;
+      const pt = uvToCanvas(uv[0], uv[1]);
+      const d = Math.hypot(mx - pt.x, my - pt.y);
+      if (d < bestDist) { bestDist = d; bestUI = ui; }
+    });
+  });
+  return bestUI;
+}
+
+function pointToSegmentDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay;
+  const lenSq = dx*dx + dy*dy;
+  if (lenSq === 0) return Math.hypot(px-ax, py-ay);
+  const t = Math.max(0, Math.min(1, ((px-ax)*dx + (py-ay)*dy) / lenSq));
+  return Math.hypot(px - (ax + t*dx), py - (ay + t*dy));
+}
+
+// ── Mode switch ──
+function setSelectionMode(mode) {
+  state.selectionMode = mode;
+  state.selectedFaces.clear();
+  state.selectedEdges.clear();
+  state.selectedVerts.clear();
+  document.querySelectorAll('.sel-mode-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === mode)
+  );
+  const labels = { face: 'FACE MODE', edge: 'EDGE MODE', vert: 'VERTEX MODE' };
+  document.getElementById('uv-view-label').textContent = `UV MAP — ${labels[mode]}`;
+  updateSelectionStatus();
+  drawUVs();
+}
+
+function updateSelectionStatus() {
+  const mode = state.selectionMode;
+  const n = mode === 'face' ? state.selectedFaces.size
+          : mode === 'edge' ? state.selectedEdges.size
+          : state.selectedVerts.size;
+  const label = mode === 'face' ? 'face(s)' : mode === 'edge' ? 'edge(s)' : 'vert(s)';
+  document.getElementById('status-sel').textContent =
+    n > 0 ? `${n} ${label} selected [${mode}]` : `No selection [${mode}]`;
+}
+const uvMouse = {
+  down: false,
+  startX: 0, startY: 0,        // canvas pixels
+  startU: 0, startV: 0,        // UV space
+  curX: 0, curY: 0,
+  mode: null,                   // 'box' | 'move' | null
+  DRAG_THRESHOLD: 5,            // px before we commit to a mode
+  moveUVSnapshot: null,         // {uvIdx -> [u,v]} at drag start
+};
+
+function getUVSpaceParams() {
   const pad = 40;
   const size = Math.min(uvCanvas.width, uvCanvas.height) - pad * 2;
   const ox = (uvCanvas.width - size) / 2;
   const oy = (uvCanvas.height - size) / 2;
-  const clickU = (mx - ox) / size;
-  const clickV = 1 - (my - oy) / size;
+  return { size, ox, oy };
+}
 
-  // Hit test faces
+function canvasToUV(cx, cy) {
+  const { size, ox, oy } = getUVSpaceParams();
+  const normU = (cx - ox) / size;
+  const normV = 1 - (cy - oy) / size;
+
+  if (state.uvViewport) {
+    const { minU, maxU, minV, maxV } = state.uvViewport;
+    return { u: minU + normU * (maxU - minU), v: minV + normV * (maxV - minV) };
+  }
+  return { u: normU, v: normV };
+}
+
+function hitTestUV(u, v) {
   let hit = -1;
   state.faces.forEach((face, fi) => {
     if (!face.uvIdx || face.uvIdx.length < 3) return;
     const pts = face.uvIdx.map(ui => state.texcoords[ui]).filter(Boolean);
-    if (pointInPolygon(clickU, clickV, pts)) hit = fi;
+    if (pointInPolygon(u, v, pts)) hit = fi;
   });
+  return hit;
+}
 
-  if (hit !== -1) {
-    if (e.shiftKey) {
-      state.selectedFaces.has(hit) ? state.selectedFaces.delete(hit) : state.selectedFaces.add(hit);
-    } else {
-      if (state.selectedFaces.has(hit) && state.selectedFaces.size === 1) {
-        state.selectedFaces.clear();
-      } else {
-        state.selectedFaces.clear();
-        state.selectedFaces.add(hit);
-      }
-    }
-    updateSelection();
-  } else {
-    if (!e.shiftKey) {
-      state.selectedFaces.clear();
-      updateSelection();
-    }
+// Draw box-select rect overlay on top of UV canvas
+function drawBoxSelect(ax, ay, bx, by) {
+  drawUVs();
+  const x = Math.min(ax, bx), y = Math.min(ay, by);
+  const w = Math.abs(bx - ax), h = Math.abs(by - ay);
+  uvCtx.save();
+  uvCtx.strokeStyle = '#00e5ff';
+  uvCtx.lineWidth = 1;
+  uvCtx.setLineDash([4, 3]);
+  uvCtx.strokeRect(x, y, w, h);
+  uvCtx.fillStyle = 'rgba(0,229,255,0.07)';
+  uvCtx.fillRect(x, y, w, h);
+  uvCtx.restore();
+}
+
+uvCanvas.addEventListener('dblclick', () => {
+  if (state.uvViewport) {
+    state.uvViewport = null;
+    drawUVs();
+    setStatus('UV view reset to full 0–1 space');
   }
 });
-
-uvCanvas.addEventListener('mousemove', e => {
+// ── UV CANVAS MOUSE — face / edge / vert aware ──
+uvCanvas.addEventListener('mousedown', e => {
+  if (e.button !== 0 || state.faces.length === 0) return;
   const rect = uvCanvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
-  const pad = 40;
-  const size = Math.min(uvCanvas.width, uvCanvas.height) - pad * 2;
-  const ox = (uvCanvas.width - size) / 2;
-  const oy = (uvCanvas.height - size) / 2;
-  const u = ((mx - ox) / size).toFixed(3);
-  const v = (1 - (my - oy) / size).toFixed(3);
-  document.getElementById('status-coord').textContent = `UV: ${u}, ${v}`;
+  const { u, v } = canvasToUV(mx, my);
+  const mode = state.selectionMode;
+
+  uvMouse.down = true;
+  uvMouse.startX = mx; uvMouse.startY = my;
+  uvMouse.startU = u;  uvMouse.startV = v;
+  uvMouse.curX   = mx; uvMouse.curY   = my;
+  uvMouse.mode   = null;
+
+  // Pre-check for move: clicked on already-selected element?
+  if (mode === 'face') {
+    const hit = hitTestUV(u, v);
+    if (hit !== -1 && state.selectedFaces.has(hit)) uvMouse.mode = 'move-pending';
+  } else if (mode === 'edge') {
+    const hit = hitTestEdge(mx, my);
+    if (hit && state.selectedEdges.has(hit)) uvMouse.mode = 'move-pending';
+  } else if (mode === 'vert') {
+    const hit = hitTestVert(mx, my);
+    if (hit !== -1 && state.selectedVerts.has(hit)) uvMouse.mode = 'move-pending';
+  }
+  e.preventDefault();
 });
+
+window.addEventListener('mousemove', e => {
+  const rect = uvCanvas.getBoundingClientRect();
+  const overCanvas = e.clientX >= rect.left && e.clientX <= rect.right &&
+                     e.clientY >= rect.top  && e.clientY <= rect.bottom;
+  if (overCanvas) {
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const { size, ox, oy } = getUVSpaceParams();
+    const dispU = ((mx - ox) / size).toFixed(3);
+    const dispV = (1 - (my - oy) / size).toFixed(3);
+    document.getElementById('status-coord').textContent = `UV: ${dispU}, ${dispV}`;
+    if (!uvMouse.down) {
+      const { u: pu, v: pv } = canvasToUV(mx, my);
+      const mode = state.selectionMode;
+      if (mode === 'face') {
+        const hit = hitTestUV(pu, pv);
+        uvCanvas.style.cursor = (hit !== -1 && state.selectedFaces.has(hit)) ? 'grab' : 'crosshair';
+      } else if (mode === 'edge') {
+        const hit = hitTestEdge(mx, my);
+        uvCanvas.style.cursor = (hit && state.selectedEdges.has(hit)) ? 'grab' : 'crosshair';
+      } else if (mode === 'vert') {
+        const hit = hitTestVert(mx, my);
+        uvCanvas.style.cursor = (hit !== -1 && state.selectedVerts.has(hit)) ? 'grab' : 'crosshair';
+      }
+    }
+  }
+
+  if (!uvMouse.down) return;
+
+  const rect2 = uvCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect2.left;
+  const my = e.clientY - rect2.top;
+  uvMouse.curX = mx; uvMouse.curY = my;
+  const dx = mx - uvMouse.startX, dy = my - uvMouse.startY;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+
+  if (!uvMouse.mode || uvMouse.mode === 'move-pending') {
+    if (dist < uvMouse.DRAG_THRESHOLD) return;
+    if (uvMouse.mode === 'move-pending') {
+      uvMouse.mode = 'move';
+      uvCanvas.style.cursor = 'grabbing';
+      pushUndo();
+      const uvSet = new Set();
+      const mode = state.selectionMode;
+      if (mode === 'face') {
+        [...state.selectedFaces].forEach(fi =>
+          state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+      } else if (mode === 'edge') {
+        state.selectedEdges.forEach(key => {
+          const [fi, i] = key.split(':').map(Number);
+          const face = state.faces[fi]; if (!face) return;
+          const j = (i + 1) % face.uvIdx.length;
+          [face.uvIdx[i], face.uvIdx[j]].forEach(ui => { if (ui >= 0) uvSet.add(ui); });
+        });
+      } else if (mode === 'vert') {
+        state.selectedVerts.forEach(ui => uvSet.add(ui));
+      }
+      uvMouse.moveUVSnapshot = {};
+      uvSet.forEach(ui => { uvMouse.moveUVSnapshot[ui] = [...state.texcoords[ui]]; });
+    } else {
+      uvMouse.mode = 'box';
+      uvCanvas.style.cursor = 'crosshair';
+    }
+  }
+
+  if (uvMouse.mode === 'box') { drawBoxSelect(uvMouse.startX, uvMouse.startY, mx, my); }
+
+  if (uvMouse.mode === 'move') {
+    const { size } = getUVSpaceParams();
+    const du = dx / size, dv = -(dy / size);
+    Object.entries(uvMouse.moveUVSnapshot).forEach(([ui, orig]) => {
+      state.texcoords[+ui][0] = orig[0] + du;
+      state.texcoords[+ui][1] = orig[1] + dv;
+    });
+    drawUVs();
+  }
+});
+
+window.addEventListener('mouseup', e => {
+  if (!uvMouse.down || e.button !== 0) return;
+  uvMouse.down = false;
+  uvCanvas.style.cursor = 'crosshair';
+
+  const rect = uvCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const mode = state.selectionMode;
+
+  if (uvMouse.mode === 'box') {
+    const x0 = Math.min(uvMouse.startX, mx), x1 = Math.max(uvMouse.startX, mx);
+    const y0 = Math.min(uvMouse.startY, my), y1 = Math.max(uvMouse.startY, my);
+
+    if (mode === 'face') {
+      if (!e.shiftKey) state.selectedFaces.clear();
+      state.faces.forEach((face, fi) => {
+        const anyIn = face.uvIdx.some(ui => {
+          const uv = state.texcoords[ui]; if (!uv) return false;
+          const pt = uvToCanvas(uv[0], uv[1]);
+          return pt.x >= x0 && pt.x <= x1 && pt.y >= y0 && pt.y <= y1;
+        });
+        if (anyIn) state.selectedFaces.add(fi);
+      });
+      updateSelection();
+    } else if (mode === 'edge') {
+      if (!e.shiftKey) state.selectedEdges.clear();
+      state.faces.forEach((face, fi) => {
+        const n = face.uvIdx.length;
+        for (let i = 0; i < n; i++) {
+          const j = (i + 1) % n;
+          const uvA = state.texcoords[face.uvIdx[i]], uvB = state.texcoords[face.uvIdx[j]];
+          if (!uvA || !uvB) continue;
+          const ptA = uvToCanvas(uvA[0], uvA[1]), ptB = uvToCanvas(uvB[0], uvB[1]);
+          const cx2 = (ptA.x + ptB.x) / 2, cy2 = (ptA.y + ptB.y) / 2;
+          if (cx2 >= x0 && cx2 <= x1 && cy2 >= y0 && cy2 <= y1)
+            state.selectedEdges.add(`${fi}:${i}`);
+        }
+      });
+      updateSelectionStatus(); drawUVs();
+    } else if (mode === 'vert') {
+      if (!e.shiftKey) state.selectedVerts.clear();
+      const seen = new Set();
+      state.faces.forEach(face => {
+        face.uvIdx.forEach(ui => {
+          if (seen.has(ui)) return; seen.add(ui);
+          const uv = state.texcoords[ui]; if (!uv) return;
+          const pt = uvToCanvas(uv[0], uv[1]);
+          if (pt.x >= x0 && pt.x <= x1 && pt.y >= y0 && pt.y <= y1)
+            state.selectedVerts.add(ui);
+        });
+      });
+      updateSelectionStatus(); drawUVs();
+    }
+
+  } else if (uvMouse.mode === 'move') {
+    if (mode === 'face') buildMesh();
+    drawUVs(); updateSelectionStatus();
+    setStatus(`Moved ${mode} selection`);
+
+  } else {
+    // Plain click
+    const { u, v } = canvasToUV(uvMouse.startX, uvMouse.startY);
+
+    if (mode === 'face') {
+      const hit = hitTestUV(u, v);
+      if (hit !== -1) {
+        if (e.shiftKey) {
+          state.selectedFaces.has(hit) ? state.selectedFaces.delete(hit) : state.selectedFaces.add(hit);
+        } else { state.selectedFaces.clear(); state.selectedFaces.add(hit); }
+        updateSelection();
+      } else if (!e.shiftKey) { state.selectedFaces.clear(); updateSelection(); }
+
+    } else if (mode === 'edge') {
+      const hit = hitTestEdge(uvMouse.startX, uvMouse.startY);
+      if (hit) {
+        if (e.shiftKey) {
+          state.selectedEdges.has(hit) ? state.selectedEdges.delete(hit) : state.selectedEdges.add(hit);
+        } else { state.selectedEdges.clear(); state.selectedEdges.add(hit); }
+      } else if (!e.shiftKey) { state.selectedEdges.clear(); }
+      updateSelectionStatus(); drawUVs();
+
+    } else if (mode === 'vert') {
+      const hit = hitTestVert(uvMouse.startX, uvMouse.startY);
+      if (hit !== -1) {
+        if (e.shiftKey) {
+          state.selectedVerts.has(hit) ? state.selectedVerts.delete(hit) : state.selectedVerts.add(hit);
+        } else { state.selectedVerts.clear(); state.selectedVerts.add(hit); }
+      } else if (!e.shiftKey) { state.selectedVerts.clear(); }
+      updateSelectionStatus(); drawUVs();
+    }
+  }
+
+  uvMouse.mode = null;
+  uvMouse.moveUVSnapshot = null;
+});
+
+
 
 function pointInPolygon(x, y, pts) {
   let inside = false;
@@ -792,6 +2527,96 @@ function parseOBJ(text) {
 }
 
 // ═══════════════════════════════════════════════
+//  UNDO STACK  (Ctrl+Z)
+//  Call pushUndo() before ANY UV mutation.
+//  Keeps last 50 states to avoid memory bloat.
+// ═══════════════════════════════════════════════
+const MAX_UNDO = 50;
+
+function pushUndo() {
+  state.undoStack.push({
+    texcoords: state.texcoords.map(uv => [...uv]),
+    faceUVIdx: state.faces.map(f => [...f.uvIdx]),
+  });
+  if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
+  updateUndoUI();
+}
+
+function undoLast() {
+  if (state.undoStack.length === 0) { setStatus('Nothing to undo.'); return; }
+  const snap = state.undoStack.pop();
+  state.texcoords = snap.texcoords;
+  state.faces.forEach((f, i) => { f.uvIdx = snap.faceUVIdx[i]; });
+  state._overlapFaces = null;
+  updateStats();
+  drawUVs();
+  buildMesh();
+  runDisguiseValidation();
+  updateUndoUI();
+  setStatus(`Undo — ${state.undoStack.length} step(s) remaining`);
+}
+
+function updateUndoUI() {
+  const btn = document.getElementById('btn-undo');
+  if (!btn) return;
+  const n = state.undoStack.length;
+  btn.textContent = n > 0 ? `↩ UNDO  (${n})` : '↩ UNDO';
+  btn.disabled = n === 0;
+  btn.style.opacity = n === 0 ? '0.35' : '1';
+}
+
+// ═══════════════════════════════════════════════
+//  UV STRETCH — per-face heatmap
+//  Stretch = ratio of 3D surface area to UV area,
+//  normalised across the mesh.
+//  0 → perfect  |  high → compressed/stretched
+// ═══════════════════════════════════════════════
+function triArea2D(a, b, c) {
+  return Math.abs((b[0]-a[0])*(c[1]-a[1]) - (c[0]-a[0])*(b[1]-a[1])) * 0.5;
+}
+
+function triArea3D(a, b, c) {
+  const ab = [b[0]-a[0], b[1]-a[1], b[2]-a[2]];
+  const ac = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
+  const cx = ab[1]*ac[2] - ab[2]*ac[1];
+  const cy = ab[2]*ac[0] - ab[0]*ac[2];
+  const cz = ab[0]*ac[1] - ab[1]*ac[0];
+  return Math.sqrt(cx*cx + cy*cy + cz*cz) * 0.5;
+}
+
+function computeStretchPerFace() {
+  const { positions, texcoords, faces } = state;
+  const ratios = faces.map(face => {
+    if (face.posIdx.length < 3 || face.uvIdx.some(ui => ui < 0 || !texcoords[ui])) return 0;
+    const p = face.posIdx.map(pi => positions[pi] || [0,0,0]);
+    const uv = face.uvIdx.map(ui => texcoords[ui]);
+    const a3 = triArea3D(p[0], p[1], p[2]);
+    const a2 = triArea2D(uv[0], uv[1], uv[2]);
+    if (a2 < 1e-10 || a3 < 1e-10) return 0;
+    return a3 / a2; // bigger = more 3D area per UV unit = stretched
+  });
+
+  // Normalise to 0–1 relative to median (robust to outliers)
+  const sorted = [...ratios].filter(r => r > 0).sort((a,b) => a-b);
+  if (sorted.length === 0) return ratios.map(() => 0);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const scale = median > 0 ? 1 / (median * 3) : 1; // 3× median = full red
+
+  return ratios.map(r => Math.min(1, r * scale));
+}
+
+function stretchToColor(t) {
+  // 0=green, 0.5=yellow, 1=red  (perceptually linear)
+  if (t < 0.5) {
+    const s = t * 2;
+    return [s, 1, 0]; // green → yellow
+  } else {
+    const s = (t - 0.5) * 2;
+    return [1, 1 - s, 0]; // yellow → red
+  }
+}
+
+// ═══════════════════════════════════════════════
 //  BUILD THREE.JS MESH
 // ═══════════════════════════════════════════════
 function buildMesh() {
@@ -808,9 +2633,22 @@ function buildMesh() {
     [1, 0.84, 0], [1, 0.3, 1], [0.3, 1, 0.84]
   ];
 
+  // Compute stretch ratios if needed
+  const stretchRatios = state.stretchMode ? computeStretchPerFace() : null;
+
+  // Reset faceTriMap — each face is one triangle (already triangulated)
+  faceTriMap = [];
+
   faces.forEach((face, fi) => {
+    faceTriMap.push(fi);
     const isSelected = state.selectedFaces.has(fi);
-    const c = isSelected ? [1, 1, 1] : FACE_COLORS_3[fi % FACE_COLORS_3.length].map(x => x * 0.4);
+
+    let c;
+    if (state.stretchMode && stretchRatios) {
+      c = isSelected ? [1, 1, 1] : stretchToColor(stretchRatios[fi]);
+    } else {
+      c = isSelected ? [1, 1, 1] : FACE_COLORS_3[fi % FACE_COLORS_3.length].map(x => x * 0.4);
+    }
 
     face.posIdx.forEach((pi, i) => {
       const p = positions[pi] || [0, 0, 0];
@@ -828,19 +2666,67 @@ function buildMesh() {
   geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
 
-  const mat = new THREE.MeshPhongMaterial({
-    vertexColors: true,
-    side: THREE.DoubleSide,
-    shininess: 30,
-  });
+  // ── Material: wireframe-only, texture, or vertex colours ──
+  let mat;
 
-  const mesh = new THREE.Mesh(geo, mat);
+  if (state.wireframeMode) {
+    // Pure wireframe — no solid mesh at all
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0x00e5ff, wireframe: true,
+    });
+    meshGroup.add(new THREE.Mesh(geo, wireMat));
 
-  // Wireframe
-  const wireMat = new THREE.MeshBasicMaterial({ color: 0x1e3040, wireframe: true, transparent: true, opacity: 0.5 });
-  const wire = new THREE.Mesh(geo.clone(), wireMat);
-  meshGroup.add(mesh);
-  meshGroup.add(wire);
+    // Selection highlight still visible in wireframe mode
+    if (state.selectedFaces.size > 0) {
+      const selVerts = [];
+      faces.forEach((face, fi) => {
+        if (!state.selectedFaces.has(fi)) return;
+        face.posIdx.forEach(pi => selVerts.push(...(positions[pi] || [0,0,0])));
+      });
+      if (selVerts.length > 0) {
+        const selGeo = new THREE.BufferGeometry();
+        selGeo.setAttribute('position', new THREE.Float32BufferAttribute(selVerts, 3));
+        meshGroup.add(new THREE.Mesh(selGeo,
+          new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.6 })
+        ));
+      }
+    }
+
+  } else if (state.threeTexture && state.overlayEnabled && !state.stretchMode) {
+    mat = new THREE.MeshPhongMaterial({ map: state.threeTexture, side: THREE.DoubleSide, shininess: 20 });
+    if (state.selectedFaces.size > 0) {
+      const selVerts = [], selUVs = [];
+      faces.forEach((face, fi) => {
+        if (!state.selectedFaces.has(fi)) return;
+        face.posIdx.forEach((pi, i) => {
+          selVerts.push(...(positions[pi] || [0, 0, 0]));
+          const ui = face.uvIdx[i];
+          selUVs.push(...((ui >= 0 && texcoords[ui]) ? texcoords[ui] : [0, 0]));
+        });
+      });
+      if (selVerts.length > 0) {
+        const selGeo = new THREE.BufferGeometry();
+        selGeo.setAttribute('position', new THREE.Float32BufferAttribute(selVerts, 3));
+        selGeo.setAttribute('uv', new THREE.Float32BufferAttribute(selUVs, 2));
+        meshGroup.add(new THREE.Mesh(selGeo,
+          new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthTest: false })
+        ));
+      }
+    }
+    const mesh = new THREE.Mesh(geo, mat);
+    const wire = new THREE.Mesh(geo.clone(), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.25 }));
+    meshGroup.add(mesh);
+    meshGroup.add(wire);
+
+  } else {
+    mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, shininess: state.stretchMode ? 5 : 30 });
+    const mesh = new THREE.Mesh(geo, mat);
+    const wireOpacity = state.stretchMode ? 0.15 : 0.5;
+    const wireColor   = state.stretchMode ? 0x000000 : 0x1e3040;
+    const wire = new THREE.Mesh(geo.clone(), new THREE.MeshBasicMaterial({ color: wireColor, wireframe: true, transparent: true, opacity: wireOpacity }));
+    meshGroup.add(mesh);
+    meshGroup.add(wire);
+  }
 
   // Center and scale
   geo.computeBoundingBox();
@@ -855,6 +2741,22 @@ function buildMesh() {
   meshGroup.scale.setScalar(scale);
 
   gridHelper.position.y = box.min.y * scale - center.y * scale - 0.01;
+
+  // Stretch legend overlay
+  const legend = document.getElementById('stretch-legend');
+  if (legend) legend.style.display = state.stretchMode ? 'flex' : 'none';
+
+  // Seam lines on 3D mesh
+  if (state.seamMode) {
+    const seams = computeSeams();
+    buildSeamLines(seams);
+  } else {
+    const old = scene.getObjectByName('seamLines');
+    if (old) scene.remove(old);
+  }
+
+  // Normal direction arrows
+  buildNormalArrows();
 }
 
 // ═══════════════════════════════════════════════
@@ -869,11 +2771,15 @@ function loadOBJ(text) {
   state.faces = parsed.faces;
   state.selectedFaces.clear();
   state.separated = false;
+  state.undoStack = [];
+  state.undoSnapshot = null;
+  updateUndoUI();
 
   updateStats();
   buildFaceList();
   buildMesh();
   drawUVs();
+  runDisguiseValidation();
   setStatus(`Loaded: ${state.faces.length} faces, ${state.texcoords.length} UV coords`);
 }
 
@@ -922,6 +2828,22 @@ function updateSelection() {
 
   buildMesh();
   drawUVs();
+
+  // Auto-zoom UV canvas to show selected islands
+  if (state.selectedFaces.size > 0) zoomToSelectionUV();
+
+  // If exactly one face selected, flash the UV canvas label to hint the connection
+  if (n === 1) {
+    const label = document.querySelector('.uv-view-label');
+    if (label) {
+      label.style.color = 'var(--accent)';
+      label.textContent = 'UV MAP — FACE LINKED FROM 3D VIEW';
+      setTimeout(() => {
+        label.style.color = '';
+        label.textContent = 'UV MAP — CLICK ISLANDS TO SELECT';
+      }, 1800);
+    }
+  }
 }
 
 function setStatus(msg) {
@@ -939,6 +2861,7 @@ function getTargetFaceIndices() {
 
 function flipU() {
   if (state.faces.length === 0) return;
+  pushUndo();
   const faceIndices = getTargetFaceIndices();
   const uvSet = new Set();
   faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
@@ -963,6 +2886,7 @@ function flipU() {
 
 function flipV() {
   if (state.faces.length === 0) return;
+  pushUndo();
   const faceIndices = getTargetFaceIndices();
   const uvSet = new Set();
   faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
@@ -986,6 +2910,7 @@ function flipV() {
 
 function rotateUV90() {
   if (state.faces.length === 0) return;
+  pushUndo();
   const faceIndices = getTargetFaceIndices();
   const uvSet = new Set();
   faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
@@ -1007,6 +2932,7 @@ function rotateUV90() {
 
 function separateByFace() {
   if (state.faces.length === 0) return;
+  pushUndo();
 
   // Give each face its own unique UV island in a grid layout
   const n = state.faces.length;
@@ -1115,31 +3041,542 @@ document.getElementById('uv-offset-v').addEventListener('input', function () {
 });
 
 // ═══════════════════════════════════════════════
-//  EXPORT OBJ
+//  NORMALISE UVs  (disguise requirement: fill 0–1)
+// ═══════════════════════════════════════════════
+function normaliseUVs() {
+  if (state.faces.length === 0) return;
+  pushUndo();
+
+  const faceIndices = getTargetFaceIndices();
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+  if (uvSet.size === 0) return;
+
+  let minU = Infinity, maxU = -Infinity, minV = Infinity, maxV = -Infinity;
+  uvSet.forEach(ui => {
+    const [u, v] = state.texcoords[ui];
+    if (u < minU) minU = u; if (u > maxU) maxU = u;
+    if (v < minV) minV = v; if (v > maxV) maxV = v;
+  });
+
+  const rangeU = maxU - minU || 1;
+  const rangeV = maxV - minV || 1;
+
+  uvSet.forEach(ui => {
+    state.texcoords[ui][0] = (state.texcoords[ui][0] - minU) / rangeU;
+    state.texcoords[ui][1] = (state.texcoords[ui][1] - minV) / rangeV;
+  });
+
+  drawUVs();
+  buildMesh();
+  runDisguiseValidation();
+  setStatus(`Normalised UVs to 0–1 range (disguise-ready)`);
+}
+
+// ═══════════════════════════════════════════════
+//  POLYGON OVERLAP — Separating Axis Theorem
+//  Accurate per-triangle UV overlap detection
+// ═══════════════════════════════════════════════
+function getAxes(poly) {
+  const axes = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    const edge = [b[0] - a[0], b[1] - a[1]];
+    axes.push([-edge[1], edge[0]]); // perpendicular
+  }
+  return axes;
+}
+
+function projectPoly(poly, axis) {
+  let min = Infinity, max = -Infinity;
+  poly.forEach(([x, y]) => {
+    const p = x * axis[0] + y * axis[1];
+    if (p < min) min = p;
+    if (p > max) max = p;
+  });
+  return [min, max];
+}
+
+function polysOverlapSAT(a, b) {
+  const axes = [...getAxes(a), ...getAxes(b)];
+  const eps = 0.0005;
+  for (const axis of axes) {
+    const [minA, maxA] = projectPoly(a, axis);
+    const [minB, maxB] = projectPoly(b, axis);
+    if (maxA - eps <= minB || maxB - eps <= minA) return false; // gap found
+  }
+  return true; // no separating axis → overlap
+}
+
+function getFaceUVPoly(face) {
+  return face.uvIdx.map(ui => state.texcoords[ui] || [0, 0]);
+}
+
+// Returns array of [faceA, faceB] pairs that genuinely overlap
+function findOverlappingPairs() {
+  const pairs = [];
+  const n = state.faces.length;
+  // First pass: bbox cull (fast)
+  const bboxes = state.faces.map(face => {
+    let u0=Infinity,u1=-Infinity,v0=Infinity,v1=-Infinity;
+    face.uvIdx.forEach(ui => {
+      const uv = state.texcoords[ui]; if (!uv) return;
+      if (uv[0]<u0) u0=uv[0]; if (uv[0]>u1) u1=uv[0];
+      if (uv[1]<v0) v0=uv[1]; if (uv[1]>v1) v1=uv[1];
+    });
+    return [u0,v0,u1,v1];
+  });
+  const eps = 0.0005;
+  for (let i = 0; i < n; i++) {
+    const [au0,av0,au1,av1] = bboxes[i];
+    for (let j = i + 1; j < n; j++) {
+      const [bu0,bv0,bu1,bv1] = bboxes[j];
+      // Bbox overlap?
+      if (au1-eps <= bu0 || bu1-eps <= au0 || av1-eps <= bv0 || bv1-eps <= av0) continue;
+      // Precise SAT check
+      const polyA = getFaceUVPoly(state.faces[i]);
+      const polyB = getFaceUVPoly(state.faces[j]);
+      if (polysOverlapSAT(polyA, polyB)) pairs.push([i, j]);
+    }
+  }
+  return pairs;
+}
+
+// ═══════════════════════════════════════════════
+//  DISGUISE VALIDATION
+// ═══════════════════════════════════════════════
+function setValidationRow(id, state_str, text) {
+  const dot = document.getElementById('v-dot-' + id);
+  const label = document.getElementById('v-label-' + id);
+  dot.className = 'v-dot ' + state_str;
+  label.className = 'v-label ' + state_str;
+  label.textContent = text;
+}
+
+function runDisguiseValidation() {
+  const autofixWrap = document.getElementById('autofix-wrap');
+  const overlapDetails = document.getElementById('overlap-details');
+
+  if (state.faces.length === 0) {
+    ['range','norm','tri','uv','overlap'].forEach(id => setValidationRow(id, 'idle', {
+      range: 'UVs in 0–1 range', norm: 'Fills UV space (normalised)',
+      tri: 'Triangulated mesh', uv: 'All faces have UVs', overlap: 'No UV overlaps'
+    }[id]));
+    document.getElementById('dsg-hint').textContent = 'Load a mesh to validate for disguise Designer.';
+    autofixWrap.classList.remove('visible');
+    overlapDetails.classList.remove('visible');
+    return;
+  }
+
+  const issues = [];
+
+  // 1. All UVs in 0–1 range
+  let oobCount = 0;
+  state.texcoords.forEach(([u, v]) => {
+    if (u < -0.001 || u > 1.001 || v < -0.001 || v > 1.001) oobCount++;
+  });
+  if (oobCount === 0) {
+    setValidationRow('range', 'pass', 'UVs in 0–1 range ✓');
+  } else {
+    setValidationRow('range', 'fail', `${oobCount} UV(s) out of bounds!`);
+    issues.push(`${oobCount} UV coordinate(s) outside 0–1. Use NORMALISE UVs.`);
+  }
+
+  // 2. Fills UV space (min~0, max~1)
+  let minU=Infinity,maxU=-Infinity,minV=Infinity,maxV=-Infinity;
+  state.texcoords.forEach(([u,v]) => {
+    if (u<minU) minU=u; if (u>maxU) maxU=u;
+    if (v<minV) minV=v; if (v>maxV) maxV=v;
+  });
+  if (minU < 0.05 && maxU > 0.95 && minV < 0.05 && maxV > 0.95) {
+    setValidationRow('norm', 'pass', 'Fills UV space ✓');
+  } else {
+    setValidationRow('norm', 'warn', `U[${minU.toFixed(2)}–${maxU.toFixed(2)}] V[${minV.toFixed(2)}–${maxV.toFixed(2)}]`);
+    issues.push('UVs don\'t fill the full 0–1 space. Use NORMALISE UVs.');
+  }
+
+  // 3. Triangulated
+  const nonTri = state.faces.filter(f => f.posIdx.length !== 3).length;
+  if (nonTri === 0) {
+    setValidationRow('tri', 'pass', 'Triangulated ✓');
+  } else {
+    setValidationRow('tri', 'fail', `${nonTri} non-triangle face(s)`);
+    issues.push(`${nonTri} faces are not triangles.`);
+  }
+
+  // 4. All faces have UVs
+  const noUV = state.faces.filter(f => f.uvIdx.some(ui => ui < 0 || !state.texcoords[ui])).length;
+  if (noUV === 0) {
+    setValidationRow('uv', 'pass', 'All faces have UVs ✓');
+  } else {
+    setValidationRow('uv', 'fail', `${noUV} face(s) missing UVs`);
+    issues.push(`${noUV} face(s) have no UV coordinates.`);
+  }
+
+  // 5. Precise SAT overlap detection
+  const overlapPairs = findOverlappingPairs();
+  const overlapCount = overlapPairs.length;
+
+  if (overlapCount === 0) {
+    setValidationRow('overlap', 'pass', 'No UV overlaps ✓');
+    autofixWrap.classList.remove('visible');
+    overlapDetails.classList.remove('visible');
+  } else {
+    setValidationRow('overlap', 'warn', `${overlapCount} overlapping pair(s) detected`);
+    issues.push(`${overlapCount} UV island pair(s) overlap. Auto-fix will repack them.`);
+
+    // Show detail: which faces are involved
+    const involvedFaces = new Set();
+    overlapPairs.forEach(([a, b]) => { involvedFaces.add(a); involvedFaces.add(b); });
+    const faceList = [...involvedFaces].slice(0, 8).map(fi => `FACE_${String(fi).padStart(4,'0')}`).join(', ');
+    const more = involvedFaces.size > 8 ? ` +${involvedFaces.size - 8} more` : '';
+    overlapDetails.innerHTML = `<strong style="color:var(--accent2)">Overlapping faces:</strong><br>${faceList}${more}`;
+    overlapDetails.classList.add('visible');
+    autofixWrap.classList.add('visible');
+
+    // Highlight overlapping faces on UV canvas
+    state._overlapFaces = involvedFaces;
+    drawUVs();
+  }
+
+  // Summary hint
+  const hint = document.getElementById('dsg-hint');
+  if (issues.length === 0) {
+    hint.style.borderLeftColor = 'var(--accent3)';
+    hint.style.color = 'var(--accent3)';
+    hint.textContent = '✓ Mesh is ready for disguise Designer.';
+  } else {
+    hint.style.borderLeftColor = 'var(--accent2)';
+    hint.style.color = 'var(--muted)';
+    hint.textContent = issues[0];
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PACKING ENGINE — pure, no state mutation
+//  Returns placements map without touching state.
+//  Used by both preview and apply.
+// ═══════════════════════════════════════════════
+function computePackingPlan(faces, texcoords) {
+  // Step 1: snapshot independent UV coords per face
+  const snapCoords = texcoords.map(uv => [...uv]);
+  const snapFaceUVs = faces.map(face => {
+    return face.uvIdx.map(ui => (ui >= 0 && snapCoords[ui]) ? [...snapCoords[ui]] : [0,0]);
+  });
+
+  // Step 2: measure bounding box of each face in UV space
+  const islands = faces.map((face, fi) => {
+    const uvs = snapFaceUVs[fi];
+    let u0=Infinity, u1=-Infinity, v0=Infinity, v1=-Infinity;
+    uvs.forEach(([u,v]) => {
+      if (u<u0) u0=u; if (u>u1) u1=u;
+      if (v<v0) v0=v; if (v>v1) v1=v;
+    });
+    // Clamp degenerate islands
+    if (u1 <= u0) { u0=0; u1=0.01; }
+    if (v1 <= v0) { v0=0; v1=0.01; }
+    return { fi, u0, v0, u1, v1, w: u1-u0, h: v1-v0, localUVs: uvs };
+  });
+
+  // Step 3: shelf bin-pack, tall-first
+  const sorted = [...islands].sort((a,b) => b.h - a.h);
+  const MARGIN = 0.004;
+  const maxH = Math.max(...sorted.map(s => s.h));
+  const maxW = Math.max(...sorted.map(s => s.w));
+  const scaleFactor = Math.min(
+    (1.0 - MARGIN * 2) / (maxW || 1),
+    (1.0 - MARGIN * 2) / (maxH || 1),
+    1.0
+  );
+
+  let shelfX = MARGIN, shelfY = MARGIN, shelfH = 0;
+  const placements = new Map(); // fi → { newU0, newV0, sw, sh, island }
+
+  for (const island of sorted) {
+    const sw = island.w * scaleFactor;
+    const sh = island.h * scaleFactor;
+    if (shelfX + sw + MARGIN > 1.0) {
+      shelfY += shelfH + MARGIN;
+      shelfX = MARGIN;
+      shelfH = 0;
+    }
+    placements.set(island.fi, { newU0: shelfX, newV0: shelfY, sw, sh, island });
+    shelfX += sw + MARGIN;
+    if (sh > shelfH) shelfH = sh;
+  }
+
+  return { placements, scaleFactor, MARGIN };
+}
+
+// ═══════════════════════════════════════════════
+//  PREVIEW RENDERER
+//  Draws UV islands onto an offscreen canvas.
+//  mode: 'current'  → draw state.texcoords as-is
+//        'packed'   → draw using placement plan
+// ═══════════════════════════════════════════════
+function renderPackPreview(canvas, mode, placements) {
+  const W = canvas.parentElement.clientWidth  || 400;
+  const H = canvas.parentElement.clientHeight || 400;
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = 24;
+  const sz = Math.min(W, H) - pad * 2;
+  const ox = (W - sz) / 2;
+  const oy = (H - sz) / 2;
+
+  // Background
+  ctx.fillStyle = 'rgba(0,229,255,0.03)';
+  ctx.fillRect(ox, oy, sz, sz);
+  ctx.strokeStyle = 'rgba(0,229,255,0.3)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(ox, oy, sz, sz);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,229,255,0.07)';
+  ctx.lineWidth = 0.5;
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(ox + sz*i/4, oy); ctx.lineTo(ox + sz*i/4, oy+sz); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox, oy + sz*i/4); ctx.lineTo(ox+sz, oy + sz*i/4); ctx.stroke();
+  }
+
+  const FACE_COLORS = ['#00e5ff','#ff6b35','#7fff6b','#ffd700','#ff4dff','#4dffd6'];
+
+  function uvToC(u, v) {
+    return { x: ox + u * sz, y: oy + (1 - v) * sz };
+  }
+
+  if (mode === 'current') {
+    // Draw faces from current state.texcoords
+    state.faces.forEach((face, fi) => {
+      if (!face.uvIdx || face.uvIdx.length < 3) return;
+      const color = FACE_COLORS[fi % FACE_COLORS.length];
+      ctx.beginPath();
+      face.uvIdx.forEach((ui, i) => {
+        const uv = state.texcoords[ui];
+        if (!uv) return;
+        const pt = uvToC(uv[0], uv[1]);
+        i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = color + '22';
+      ctx.fill();
+      ctx.strokeStyle = color + 'aa';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Red dashed outlines for overlapping faces
+    if (state._overlapFaces && state._overlapFaces.size > 0) {
+      state.faces.forEach((face, fi) => {
+        if (!state._overlapFaces.has(fi)) return;
+        ctx.beginPath();
+        face.uvIdx.forEach((ui, i) => {
+          const uv = state.texcoords[ui];
+          if (!uv) return;
+          const pt = uvToC(uv[0], uv[1]);
+          i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+        });
+        ctx.closePath();
+        ctx.strokeStyle = '#ff4040';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3,2]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+    }
+
+  } else if (mode === 'packed' && placements) {
+    // Draw faces using their packed positions
+    placements.forEach(({ newU0, newV0, sw, sh, island }, fi) => {
+      const face = state.faces[fi];
+      const color = FACE_COLORS[fi % FACE_COLORS.length];
+      ctx.beginPath();
+      island.localUVs.forEach(([u, v], i) => {
+        const localU = island.w > 0 ? (u - island.u0) / island.w : 0;
+        const localV = island.h > 0 ? (v - island.v0) / island.h : 0;
+        const pu = newU0 + localU * sw;
+        const pv = newV0 + localV * sh;
+        const pt = uvToC(pu, pv);
+        i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = color + '33';
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    });
+
+    // Efficiency fill indicator — shaded unused UV space
+    const usedArea = [...placements.values()].reduce((sum, p) => sum + p.sw * p.sh, 0);
+    ctx.fillStyle = 'transparent';
+
+    // Watermark efficiency %
+    const eff = Math.round(usedArea * 100);
+    ctx.fillStyle = 'rgba(127,255,107,0.5)';
+    ctx.font = `bold ${Math.round(sz * 0.08)}px "Share Tech Mono"`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`${eff}% used`, ox + sz/2, oy + sz - 10);
+    ctx.textAlign = 'left';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  SHOW PACKING PREVIEW MODAL
+// ═══════════════════════════════════════════════
+let _pendingPlan = null; // store plan so Confirm can apply it
+
+function showPackingPreview() {
+  if (state.faces.length === 0) return;
+
+  const pairsBefore = findOverlappingPairs();
+  const { placements } = computePackingPlan(state.faces, state.texcoords);
+
+  // Simulate packed state to count remaining overlaps
+  // (build temporary texcoords for overlap check)
+  const tempCoords = state.texcoords.map(uv => [...uv]);
+  const tempFaceUVs = state.faces.map(f => [...f.uvIdx]);
+
+  // Apply packing to temp coords
+  state.faces.forEach((face, fi) => {
+    const plan = placements.get(fi);
+    if (!plan) return;
+    const { newU0, newV0, sw, sh, island } = plan;
+    face.uvIdx.forEach((ui, i) => {
+      const orig = island.localUVs[i];
+      const localU = island.w > 0 ? (orig[0] - island.u0) / island.w : 0;
+      const localV = island.h > 0 ? (orig[1] - island.v0) / island.h : 0;
+    });
+  });
+
+  _pendingPlan = placements;
+
+  // Update badges
+  const overlapWord = pairsBefore.length === 1 ? 'overlap' : 'overlaps';
+  document.getElementById('pack-before-badge').textContent = `${pairsBefore.length} ${overlapWord}`;
+  document.getElementById('pack-after-badge').textContent  = `0 overlaps`;
+
+  const usedArea = [...placements.values()].reduce((sum, p) => sum + p.sw * p.sh, 0);
+  const eff = Math.round(usedArea * 100);
+  document.getElementById('pack-stat').innerHTML =
+    `<strong>${state.faces.length}</strong> islands · ` +
+    `<strong>${pairsBefore.length}</strong> overlap(s) resolved · ` +
+    `UV space utilisation: <strong style="color:var(--accent3)">${eff}%</strong>`;
+
+  // Open modal
+  document.getElementById('pack-modal-backdrop').classList.add('open');
+
+  // Render both previews after a frame so layout is settled
+  requestAnimationFrame(() => {
+    renderPackPreview(document.getElementById('pack-canvas-before'), 'current', null);
+    renderPackPreview(document.getElementById('pack-canvas-after'),  'packed',  placements);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  APPLY PACKING (from confirmed preview)
+// ═══════════════════════════════════════════════
+function applyPacking(placements) {
+  pushUndo();
+
+  // Give every face its own independent UV set
+  state.faces.forEach(face => {
+    const newUVs = face.uvIdx.map(ui => {
+      const orig = (ui >= 0 && state.texcoords[ui]) ? [...state.texcoords[ui]] : [0, 0];
+      state.texcoords.push(orig);
+      return state.texcoords.length - 1;
+    });
+    face.uvIdx = newUVs;
+  });
+
+  // Apply placements
+  placements.forEach(({ newU0, newV0, sw, sh, island }, fi) => {
+    const face = state.faces[fi];
+    face.uvIdx.forEach((ui, i) => {
+      const orig = island.localUVs[i];
+      const localU = island.w > 0 ? (orig[0] - island.u0) / island.w : 0;
+      const localV = island.h > 0 ? (orig[1] - island.v0) / island.h : 0;
+      state.texcoords[ui][0] = newU0 + localU * sw;
+      state.texcoords[ui][1] = newV0 + localV * sh;
+    });
+  });
+
+  state._overlapFaces = null;
+  updateStats();
+  drawUVs();
+  buildMesh();
+  runDisguiseValidation();
+
+  const usedArea = [...placements.values()].reduce((sum, p) => sum + p.sw * p.sh, 0);
+  setStatus(`✓ Packing applied — ${Math.round(usedArea * 100)}% UV utilisation. Ready to export.`);
+}
+
+// ═══════════════════════════════════════════════
+//  LEGACY autoFixOverlaps — now calls preview
+// ═══════════════════════════════════════════════
+function autoFixOverlaps() {
+  showPackingPreview();
+}
+
+function undoAutoFix() {
+  if (!state.undoSnapshot) return;
+  state.texcoords = state.undoSnapshot.texcoords;
+  state.faces.forEach((f, i) => { f.uvIdx = state.undoSnapshot.faceUVIdx[i]; });
+  state.undoSnapshot = null;
+  document.getElementById('btn-undo-autofix').style.display = 'none';
+  state._overlapFaces = null;
+  updateStats();
+  drawUVs();
+  buildMesh();
+  runDisguiseValidation();
+  setStatus('Auto-fix undone — UVs restored to pre-fix state.');
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT OBJ — disguise Designer optimised
+//  Rules from disguise docs:
+//   • Deselect normals, smoothing groups, materials, material libraries
+//   • Export texture coordinates (UV map)
+//   • Flip YZ axis if source is Z-up (3ds Max default)
+//   • Triangulated faces (already done by parser)
+//   • Place in /objects/Mesh folder of disguise project
 // ═══════════════════════════════════════════════
 function exportOBJ() {
   if (state.faces.length === 0) { setStatus('Nothing to export'); return; }
 
-  const lines = ['# UV/EDIT export', '# Exported by UV/EDIT', ''];
+  const flipYZ = document.getElementById('chk-flip-yz') && document.getElementById('chk-flip-yz').checked;
+  const stripNormals = true;  // disguise: deselect normals
+  const filename = (state.meshName || 'mesh') + '.obj';
 
-  state.positions.forEach(p => { lines.push(`v ${p[0]} ${p[1]} ${p[2]}`); });
+  const lines = [
+    '# Exported by UV/EDIT — disguise Designer ready',
+    '# UVs: normalised 0-1  |  Normals: stripped  |  Triangulated: yes',
+    `# Flip YZ: ${flipYZ}`,
+    ''
+  ];
+
+  // Vertices — apply YZ flip if needed (Z-up → Y-up for disguise)
+  state.positions.forEach(([x, y, z]) => {
+    if (flipYZ) lines.push(`v ${x} ${z} ${-y}`);
+    else        lines.push(`v ${x} ${y} ${z}`);
+  });
   lines.push('');
 
-  state.texcoords.forEach(t => { lines.push(`vt ${t[0]} ${t[1]}`); });
+  // UV coordinates only (no MTL, no normals per disguise spec)
+  state.texcoords.forEach(([u, v]) => { lines.push(`vt ${u.toFixed(6)} ${v.toFixed(6)}`); });
   lines.push('');
 
-  state.normals.forEach(n => { lines.push(`vn ${n[0]} ${n[1]} ${n[2]}`); });
-  lines.push('');
-
+  // Faces — position/UV only, no normal index (disguise: deselect normals)
   state.faces.forEach(face => {
     const tokens = face.posIdx.map((pi, i) => {
       const ui = face.uvIdx[i];
-      const ni = face.normIdx[i];
       const p = pi + 1;
       const t = (ui >= 0) ? (ui + 1) : '';
-      const n = (ni >= 0) ? (ni + 1) : '';
-      if (t || n) return `${p}/${t}/${n}`;
-      return `${p}`;
+      return t ? `${p}/${t}` : `${p}`;
     });
     lines.push(`f ${tokens.join(' ')}`);
   });
@@ -1148,73 +3585,210 @@ function exportOBJ() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'uv_edited.obj';
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-  setStatus('Exported uv_edited.obj');
+  setStatus(`Exported ${filename} — place in disguise project /objects/Mesh/`);
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT UV PNG
+// ═══════════════════════════════════════════════
+function exportUVPNG() {
+  if (state.faces.length === 0) { setStatus('Nothing to export'); return; }
+
+  const res = 2048;
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = res; offCanvas.height = res;
+  const ctx = offCanvas.getContext('2d');
+
+  // Background
+  if (state.checkerboard) {
+    const checker = makeCheckerCanvas(512, 16);
+    const pat = ctx.createPattern(checker, 'repeat');
+    ctx.fillStyle = pat;
+    ctx.fillRect(0, 0, res, res);
+  } else {
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, res, res);
+  }
+
+  // Texture overlay
+  if (state.overlayEnabled && state.overlayImage) {
+    ctx.save();
+    ctx.globalAlpha = state.overlayOpacity;
+    ctx.drawImage(state.overlayImage, 0, 0, res, res);
+    ctx.restore();
+  }
+
+  // UV grid lines (faint)
+  ctx.strokeStyle = 'rgba(0,229,255,0.12)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    ctx.beginPath(); ctx.moveTo(i * res / 4, 0); ctx.lineTo(i * res / 4, res); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i * res / 4); ctx.lineTo(res, i * res / 4); ctx.stroke();
+  }
+
+  // Border
+  ctx.strokeStyle = 'rgba(0,229,255,0.6)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(1, 1, res - 2, res - 2);
+
+  const FACE_COLORS = ['#00e5ff', '#ff6b35', '#7fff6b', '#ffd700', '#ff4dff', '#4dffd6'];
+
+  // Draw all UV faces
+  state.faces.forEach((face, fi) => {
+    if (!face.uvIdx || face.uvIdx.length < 3) return;
+    const color = FACE_COLORS[fi % FACE_COLORS.length];
+
+    ctx.beginPath();
+    face.uvIdx.forEach((ui, i) => {
+      const uv = state.texcoords[ui];
+      if (!uv) return;
+      const x = uv[0] * res;
+      const y = (1 - uv[1]) * res;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+
+    ctx.fillStyle = color + '18';
+    ctx.fill();
+    ctx.strokeStyle = state.overlayEnabled ? 'rgba(255,255,255,0.85)' : color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // Watermark
+  ctx.fillStyle = 'rgba(0,229,255,0.3)';
+  ctx.font = '18px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('UV/EDIT', res - 12, res - 12);
+
+  offCanvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'uv_layout.png';
+    a.click();
+    URL.revokeObjectURL(url);
+    setStatus(`Exported UV layout as 2048×2048 PNG`);
+  }, 'image/png');
+}
+
+// ═══════════════════════════════════════════════
+//  SNAP UVs TO GRID
+//  Required for LED grid layouts — shells must
+//  align precisely with no gaps (disguise docs)
+// ═══════════════════════════════════════════════
+function snapUVsToGrid() {
+  if (state.faces.length === 0) return;
+  pushUndo();
+  const divisions = parseInt(document.getElementById('snap-divisions').value) || 8;
+  const step = 1 / divisions;
+
+  const faceIndices = getTargetFaceIndices();
+  const uvSet = new Set();
+  faceIndices.forEach(fi => state.faces[fi].uvIdx.forEach(ui => { if (ui >= 0) uvSet.add(ui); }));
+
+  uvSet.forEach(ui => {
+    state.texcoords[ui][0] = Math.round(state.texcoords[ui][0] / step) * step;
+    state.texcoords[ui][1] = Math.round(state.texcoords[ui][1] / step) * step;
+  });
+
+  drawUVs();
+  runDisguiseValidation();
+  setStatus(`Snapped ${uvSet.size} UV points to ${divisions}×${divisions} grid`);
+}
+
+// ═══════════════════════════════════════════════
+//  CONTENT TEMPLATE RESOLUTION CALCULATOR
+//  Disguise workflow: pixel density × real-world
+//  dimensions → content template resolution
+// ═══════════════════════════════════════════════
+function calcContentTemplate() {
+  const physW = parseFloat(document.getElementById('phys-w').value) || 0;
+  const physH = parseFloat(document.getElementById('phys-h').value) || 0;
+  const pixelPitch = parseFloat(document.getElementById('pixel-pitch').value) || 0;
+  const out = document.getElementById('template-result');
+
+  if (!physW || !physH || !pixelPitch) {
+    out.textContent = 'Enter dimensions and pixel pitch.';
+    return;
+  }
+
+  // pixels = physical size (mm) / pixel pitch (mm)
+  const pxW = Math.round((physW * 1000) / pixelPitch);
+  const pxH = Math.round((physH * 1000) / pixelPitch);
+  const aspect = (pxW / pxH).toFixed(4);
+
+  out.innerHTML = `<span style="color:var(--accent3)">${pxW} × ${pxH} px</span><br>Aspect: ${aspect}<br><span style="color:var(--muted)">Set this as screen resolution in disguise Designer</span>`;
 }
 
 // ═══════════════════════════════════════════════
 //  DEMO MODEL (procedural cube)
 // ═══════════════════════════════════════════════
 function loadDemoModel() {
-  const obj = `# Demo Cube
-v -1 -1  1
-v  1 -1  1
-v  1  1  1
-v -1  1  1
-v -1 -1 -1
-v  1 -1 -1
-v  1  1 -1
-v -1  1 -1
+  // 6-panel LED strip array — typical disguise screen surface
+  // Panels share overlapping UVs (common import problem), need Separate by Face + Normalise
+  // Models a 6×1 horizontal LED strip, each panel 0.5m wide × 1.0m tall
+  const obj = `# disguise Demo — 6-Panel LED Strip Array
+# 6 flat panels arranged horizontally, each 0.5m x 1.0m
+# UVs overlap (common real-world problem) — use Separate By Face + Normalise
+
+v 0.0 0.0 0.0
+v 0.5 0.0 0.0
+v 0.5 1.0 0.0
+v 0.0 1.0 0.0
+
+v 0.5 0.0 0.0
+v 1.0 0.0 0.0
+v 1.0 1.0 0.0
+v 0.5 1.0 0.0
+
+v 1.0 0.0 0.0
+v 1.5 0.0 0.0
+v 1.5 1.0 0.0
+v 1.0 1.0 0.0
+
+v 1.5 0.0 0.0
+v 2.0 0.0 0.0
+v 2.0 1.0 0.0
+v 1.5 1.0 0.0
+
+v 2.0 0.0 0.0
+v 2.5 0.0 0.0
+v 2.5 1.0 0.0
+v 2.0 1.0 0.0
+
+v 2.5 0.0 0.0
+v 3.0 0.0 0.0
+v 3.0 1.0 0.0
+v 2.5 1.0 0.0
 
 vt 0.0 0.0
 vt 1.0 0.0
 vt 1.0 1.0
 vt 0.0 1.0
-vt 0.0 0.0
-vt 1.0 0.0
-vt 1.0 1.0
-vt 0.0 1.0
-vt 0.0 0.0
-vt 1.0 0.0
-vt 1.0 1.0
-vt 0.0 1.0
-vt 0.0 0.0
-vt 1.0 0.0
-vt 1.0 1.0
-vt 0.0 1.0
-vt 0.0 0.0
-vt 1.0 0.0
-vt 1.0 1.0
-vt 0.0 1.0
-vt 0.0 0.0
-vt 1.0 0.0
-vt 1.0 1.0
-vt 0.0 1.0
 
-# Front
+# All 6 panels share the same UV space (overlapping — needs fixing for disguise)
 f 1/1 2/2 3/3
 f 1/1 3/3 4/4
-# Back
-f 6/5 5/6 8/7
-f 6/5 8/7 7/8
-# Left
-f 5/9 1/10 4/11
-f 5/9 4/11 8/12
-# Right
-f 2/13 6/14 7/15
-f 2/13 7/15 3/16
-# Top
-f 4/17 3/18 7/19
-f 4/17 7/19 8/20
-# Bottom
-f 5/21 6/22 2/23
-f 5/21 2/23 1/24
+f 5/1 6/2 7/3
+f 5/1 7/3 8/4
+f 9/1 10/2 11/3
+f 9/1 11/3 12/4
+f 13/1 14/2 15/3
+f 13/1 15/3 16/4
+f 17/1 18/2 19/3
+f 17/1 19/3 20/4
+f 21/1 22/2 23/3
+f 21/1 23/3 24/4
 `;
+  state.meshName = 'led_strip_6panel';
   loadOBJ(obj);
-  setStatus('Loaded demo cube — try Separate By Face, then Flip U/V');
+  setStatus('6-panel LED strip loaded — UVs overlap! Use Separate By Face → Normalise UVs → Export for disguise');
 }
+
 
 // ═══════════════════════════════════════════════
 //  EVENT BINDINGS
@@ -1222,6 +3796,7 @@ f 5/21 2/23 1/24
 document.getElementById('file-input').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
+  state.meshName = file.name.replace(/\.obj$/i, '');
   const reader = new FileReader();
   reader.onload = ev => loadOBJ(ev.target.result);
   reader.readAsText(file);
@@ -1234,10 +3809,283 @@ document.getElementById('btn-flip-u2').addEventListener('click', flipU);
 document.getElementById('btn-flip-v2').addEventListener('click', flipV);
 document.getElementById('btn-rotate-uv').addEventListener('click', rotateUV90);
 document.getElementById('btn-reset-uv').addEventListener('click', resetUVs);
+document.getElementById('btn-normalise').addEventListener('click', normaliseUVs);
+document.getElementById('btn-normalise2').addEventListener('click', normaliseUVs);
 document.getElementById('btn-separate').addEventListener('click', separateByFace);
 document.getElementById('btn-separate2').addEventListener('click', separateByFace);
 document.getElementById('btn-export').addEventListener('click', exportOBJ);
 document.getElementById('btn-export2').addEventListener('click', exportOBJ);
+
+document.getElementById('btn-export-png').addEventListener('click', exportUVPNG);
+document.getElementById('btn-autofix').addEventListener('click', autoFixOverlaps);
+document.getElementById('btn-undo-autofix').addEventListener('click', undoAutoFix);
+document.getElementById('btn-undo').addEventListener('click', undoLast);
+
+// Packing preview modal controls
+function closePackModal() {
+  document.getElementById('pack-modal-backdrop').classList.remove('open');
+  _pendingPlan = null;
+}
+
+document.getElementById('pack-close').addEventListener('click', closePackModal);
+document.getElementById('pack-cancel').addEventListener('click', closePackModal);
+document.getElementById('pack-modal-backdrop').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closePackModal();
+});
+
+document.getElementById('pack-confirm').addEventListener('click', () => {
+  if (!_pendingPlan) return;
+  applyPacking(_pendingPlan);
+  closePackModal();
+
+  // Show undo-autofix button for single-step undo convenience
+  document.getElementById('btn-undo-autofix').style.display = 'block';
+});
+
+document.getElementById('btn-preview-pack').addEventListener('click', () => {
+  if (state.faces.length === 0) { setStatus('Load a mesh first.'); return; }
+  showPackingPreview();
+});
+
+document.getElementById('btn-frame-sel').addEventListener('click', () => {
+  zoomToSelection();
+  zoomToSelectionUV();
+});
+
+document.getElementById('btn-frame-all').addEventListener('click', () => {
+  state.selectedFaces.clear();
+  state.uvViewport = null;
+  updateSelection();
+  zoomToSelection();
+  setStatus('Fit all faces in view');
+});
+
+// UV Stretch heatmap toggle
+document.getElementById('btn-stretch').addEventListener('click', function () {
+  state.stretchMode = !state.stretchMode;
+  this.classList.toggle('active', state.stretchMode);
+  buildMesh();
+  setStatus(state.stretchMode
+    ? 'UV Stretch: green = low distortion, yellow = moderate, red = high. Fix with Normalise or Separate By Face.'
+    : 'UV Stretch heatmap off');
+});
+
+// UV Seam highlight toggle
+document.getElementById('btn-seam').addEventListener('click', function () {
+  state.seamMode = !state.seamMode;
+  this.classList.toggle('active', state.seamMode);
+  document.getElementById('seam-legend').style.display = state.seamMode ? 'block' : 'none';
+
+  if (state.seamMode) {
+    startSeamAnim();
+    const seams = computeSeams();
+    const nSplit    = seams.filter(s => s.type === 'split').length;
+    const nBoundary = seams.filter(s => s.type === 'boundary').length;
+    const nBorder   = seams.filter(s => s.type === 'border').length;
+    buildMesh(); // adds seam lines to 3D
+    setStatus(`Seams: ${nSplit} UV splits (gold) · ${nBoundary} boundaries (magenta) · ${nBorder} pixel-boundary (cyan)`);
+  } else {
+    stopSeamAnim();
+    buildMesh(); // removes seam lines from 3D
+    drawUVs();
+    setStatus('Seam highlights off');
+  }
+});
+
+// Face normals direction toggle
+document.getElementById('btn-normals').addEventListener('click', function () {
+  state.normalMode = !state.normalMode;
+  this.classList.toggle('active', state.normalMode);
+  document.getElementById('normals-legend').style.display = state.normalMode ? 'block' : 'none';
+
+  buildNormalArrows();
+
+  if (state.normalMode) {
+    const total   = state.faces.length;
+    const camDir  = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+    let front = 0;
+    state.faces.forEach(face => {
+      if (face.posIdx.length < 3) return;
+      const pA = new THREE.Vector3(...(state.positions[face.posIdx[0]] || [0,0,0]));
+      const pB = new THREE.Vector3(...(state.positions[face.posIdx[1]] || [0,0,0]));
+      const pC = new THREE.Vector3(...(state.positions[face.posIdx[2]] || [0,0,0]));
+      const n  = new THREE.Vector3()
+        .crossVectors(new THREE.Vector3().subVectors(pB,pA), new THREE.Vector3().subVectors(pC,pA))
+        .normalize();
+      if (n.dot(camDir) < 0) front++;
+    });
+    const back = total - front;
+    setStatus(`Normals: ${front} front-facing (green) · ${back} back-facing (red) · orbit to refresh`);
+  } else {
+    setStatus('Face normals off');
+  }
+});
+
+// Selection mode buttons
+document.querySelectorAll('.sel-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => setSelectionMode(btn.dataset.mode));
+});
+
+document.getElementById('btn-grid-toggle').addEventListener('click', function () {
+  gridHelper.visible = !gridHelper.visible;
+  const on = gridHelper.visible;
+  this.style.color       = on ? 'var(--accent)' : 'var(--muted)';
+  this.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+  this.textContent = on ? '⊞ GRID' : '⊟ GRID';
+  setStatus(on ? 'Ground grid visible' : 'Ground grid hidden');
+});
+
+// Wireframe mode toggle
+document.getElementById('btn-wireframe').addEventListener('click', function () {
+  state.wireframeMode = !state.wireframeMode;
+  const on = state.wireframeMode;
+  this.style.color       = on ? 'var(--accent)' : 'var(--muted)';
+  this.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+  this.textContent = on ? '⬡ WIRE ✓' : '⬡ WIRE';
+  buildMesh();
+  setStatus(on ? 'Wireframe mode — solid faces hidden' : 'Solid shading restored');
+});
+
+// ── Fullscreen ──
+let _fsPanel = null;
+
+function enterFullscreen(panelEl, exitBtnId) {
+  if (_fsPanel) exitFullscreen();
+  _fsPanel = panelEl;
+  panelEl.classList.add('panel-fullscreen');
+  document.body.classList.add('has-fullscreen');
+
+  // Show an EXIT button inside the panel
+  const exitBtn = document.createElement('button');
+  exitBtn.id = '__fs-exit';
+  exitBtn.textContent = '✕ EXIT FULLSCREEN';
+  Object.assign(exitBtn.style, {
+    position: 'absolute', top: '10px', right: '12px', zIndex: '60',
+    fontFamily: "'Share Tech Mono',monospace", fontSize: '10px',
+    letterSpacing: '1px', padding: '5px 12px',
+    border: '1px solid var(--accent)', background: 'rgba(0,0,0,0.7)',
+    color: 'var(--accent)', cursor: 'pointer', textTransform: 'uppercase',
+    backdropFilter: 'blur(4px)',
+  });
+  exitBtn.addEventListener('click', exitFullscreen);
+  panelEl.appendChild(exitBtn);
+
+  // Trigger resize so Three.js / UV canvas fill the new space
+  setTimeout(() => { resizeViewport(); resizeUVCanvas(); drawUVs(); }, 30);
+  setStatus('Fullscreen — press Shift+Space or Esc to exit');
+}
+
+function exitFullscreen() {
+  if (!_fsPanel) return;
+  _fsPanel.classList.remove('panel-fullscreen');
+  document.body.classList.remove('has-fullscreen');
+  const eb = document.getElementById('__fs-exit');
+  if (eb) eb.remove();
+  _fsPanel = null;
+  setTimeout(() => { resizeViewport(); resizeUVCanvas(); drawUVs(); }, 30);
+  setStatus('Exited fullscreen');
+}
+
+document.getElementById('btn-fullscreen-3d').addEventListener('click', () => {
+  if (_fsPanel === viewport) exitFullscreen();
+  else enterFullscreen(viewport);
+});
+
+document.getElementById('btn-fullscreen-uv').addEventListener('click', () => {
+  if (_fsPanel === uvView) exitFullscreen();
+  else enterFullscreen(uvView);
+});
+
+// ═══════════════════════════════════════════════
+//  COLLAPSIBLE SIDEBAR GROUPS
+// ═══════════════════════════════════════════════
+function toggleGroup(id) {
+  const group  = document.getElementById(id);
+  const body   = document.getElementById(id + '-body');
+  const arrow  = group.querySelector('.group-arrow');
+  const header = group.querySelector('.section-group-header');
+  const collapsed = body.classList.toggle('collapsed');
+  header.classList.toggle('collapsed', collapsed);
+  try { localStorage.setItem('uvedit-group-' + id, collapsed ? '1' : '0'); } catch(e) {}
+}
+
+// Restore collapsed state on load
+['group-dsg','group-uv','group-view'].forEach(id => {
+  try {
+    if (localStorage.getItem('uvedit-group-' + id) === '1') {
+      const body   = document.getElementById(id + '-body');
+      const header = document.getElementById(id).querySelector('.section-group-header');
+      body.classList.add('collapsed');
+      header.classList.add('collapsed');
+    }
+  } catch(e) {}
+});
+
+// Checkerboard toggle
+document.getElementById('btn-checker').addEventListener('click', function () {
+  state.checkerboard = !state.checkerboard;
+  this.classList.toggle('active', state.checkerboard);
+  drawUVs();
+  setStatus(state.checkerboard ? 'Checkerboard enabled' : 'Checkerboard disabled');
+});
+
+// Texture overlay toggle
+document.getElementById('btn-overlay-toggle').addEventListener('click', function () {
+  state.overlayEnabled = !state.overlayEnabled;
+  this.classList.toggle('active', state.overlayEnabled);
+  document.getElementById('overlay-controls').classList.toggle('visible', state.overlayEnabled);
+  drawUVs();
+  buildMesh();
+  setStatus(state.overlayEnabled ? 'Texture overlay enabled' : 'Texture overlay disabled');
+});
+
+// Load texture image
+document.getElementById('btn-load-texture').addEventListener('click', () => {
+  document.getElementById('texture-input').click();
+});
+document.getElementById('texture-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      state.overlayImage = img;
+      state.overlayEnabled = true;
+
+      // Build THREE.Texture from the same image
+      if (state.threeTexture) state.threeTexture.dispose();
+      const tex = new THREE.Texture(img);
+      tex.needsUpdate = true;
+      // THREE r128 default flipY=true matches UV V convention correctly
+      state.threeTexture = tex;
+
+      document.getElementById('btn-overlay-toggle').classList.add('active');
+      document.getElementById('overlay-controls').classList.add('visible');
+      drawUVs();
+      buildMesh();
+      setStatus(`Texture loaded: ${file.name} (${img.width}×${img.height}) — visible on 3D mesh and UV canvas`);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Overlay opacity slider
+document.getElementById('overlay-opacity').addEventListener('input', function () {
+  state.overlayOpacity = parseFloat(this.value);
+  document.getElementById('overlay-opacity-val').textContent = state.overlayOpacity.toFixed(2);
+  drawUVs();
+});
+
+document.getElementById('btn-snap-grid').addEventListener('click', snapUVsToGrid);
+document.getElementById('btn-calc-template').addEventListener('click', calcContentTemplate);
+
+// Allow Enter key in template calc fields
+['phys-w','phys-h','pixel-pitch'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') calcContentTemplate(); });
+});
 
 // Drag & drop on viewport
 const dropOverlay = document.getElementById('drop-overlay');
@@ -1254,14 +4102,534 @@ viewport.addEventListener('drop', e => {
   }
 });
 
+// ── Seam border pulse animation (only runs when seamMode active) ──
+let _seamAnimInterval = null;
+
+function startSeamAnim() {
+  if (_seamAnimInterval) return;
+  _seamAnimInterval = setInterval(() => { if (state.seamMode) drawUVs(); }, 50);
+}
+
+function stopSeamAnim() {
+  if (_seamAnimInterval) { clearInterval(_seamAnimInterval); _seamAnimInterval = null; }
+}
+
+// ═══════════════════════════════════════════════
+//  THEME SWITCHER
+// ═══════════════════════════════════════════════
+const THEME_BG_COLORS = {
+  neon:      0x070a0d,
+  dark:      0x111111,
+  light:     0xe8ecf2,
+  retro:     0x0a0700,
+  blueprint: 0x0b1e33,
+};
+
+function applyTheme(name) {
+  const root = document.documentElement;
+  if (name === 'neon') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', name);
+  }
+
+  // Update Three.js renderer clear color
+  renderer.setClearColor(THEME_BG_COLORS[name] || 0x070a0d, 1);
+
+  // Update active swatch
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.t === name);
+  });
+
+  // Redraw UV canvas with new colors
+  drawUVs();
+
+  // Persist
+  try { localStorage.setItem('uvedit-theme', name); } catch(e) {}
+}
+
+document.querySelectorAll('.theme-swatch').forEach(swatch => {
+  swatch.addEventListener('click', () => applyTheme(swatch.dataset.t));
+});
+
+// Restore saved theme on load
+try {
+  const saved = localStorage.getItem('uvedit-theme');
+  if (saved) applyTheme(saved);
+} catch(e) {}
+
 // Resize observer
 const ro = new ResizeObserver(() => { resizeViewport(); resizeUVCanvas(); });
 ro.observe(viewport);
 ro.observe(uvView);
 
+// ═══════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS  — full map
+// ═══════════════════════════════════════════════
+//  ? / H           — toggle shortcuts panel
+//  1               — vertex mode  (qwerty row + numpad)
+//  2               — edge mode    (qwerty row + numpad)
+//  3               — face mode    (qwerty row + numpad)
+//  Tab             — cycle selection mode
+//  F1 / F2 / F3    — vert / edge / face mode
+//  U               — flip U
+//  V               — flip V
+//  R               — rotate UVs 90°
+//  N               — normalise UVs
+//  S               — separate by face
+//  P               — preview / fix packing
+//  G               — snap to grid
+//  A               — select all (mode-aware)
+//  Escape          — deselect all
+//  F               — frame selection (3D + UV)
+//  Shift+F         — fit all
+//  Shift+1–5       — switch theme
+//  C               — toggle checkerboard
+//  T               — toggle texture overlay
+//  X               — toggle UV stretch heatmap
+//  E               — toggle seam highlights
+//  M               — toggle face normals
+//  Ctrl+Z / Cmd+Z  — undo
+//  Ctrl+E / Cmd+E  — export OBJ
+// ═══════════════════════════════════════════════
+
+const SHORTCUT_MAP = [
+  { key: '? / H',        desc: 'Toggle shortcuts panel' },
+  { key: '1',            desc: 'Vertex mode  (qwerty + numpad)' },
+  { key: '2',            desc: 'Edge mode    (qwerty + numpad)' },
+  { key: '3',            desc: 'Face mode    (qwerty + numpad)' },
+  { key: 'Tab',          desc: 'Cycle selection mode' },
+  { key: 'F1',           desc: 'Vertex mode' },
+  { key: 'F2',           desc: 'Edge mode' },
+  { key: 'F3',           desc: 'Face mode' },
+  { key: 'U',            desc: 'Flip U' },
+  { key: 'V',            desc: 'Flip V' },
+  { key: 'R',            desc: 'Rotate UVs 90°' },
+  { key: 'N',            desc: 'Normalise UVs' },
+  { key: 'S',            desc: 'Separate by face' },
+  { key: 'P',            desc: 'Preview & fix packing' },
+  { key: 'W',            desc: 'Toggle wireframe mode' },
+  { key: 'G',            desc: 'Toggle ground grid' },
+  { key: 'Shift+G',      desc: 'Snap UVs to grid' },
+  { key: 'Shift+Space',  desc: 'Fullscreen 3D / UV view' },
+  { key: 'A',            desc: 'Select all / deselect all' },
+  { key: 'Esc',          desc: 'Deselect all' },
+  { key: 'F',            desc: 'Frame selection (3D + UV)' },
+  { key: 'Shift+F',      desc: 'Fit all in view' },
+  { key: 'Shift+1–5',    desc: 'Switch theme' },
+  { key: 'C',            desc: 'Toggle checkerboard' },
+  { key: 'T',            desc: 'Toggle texture overlay' },
+  { key: 'X',            desc: 'Toggle UV stretch heatmap' },
+  { key: 'E',            desc: 'Toggle seam highlights' },
+  { key: 'M',            desc: 'Toggle face normals' },
+  { key: 'Ctrl+Z',       desc: 'Undo' },
+  { key: 'Ctrl+E',       desc: 'Export OBJ' },
+];
+
+window.addEventListener('keydown', e => {
+  // Never fire inside inputs
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+  const k = e.key;
+  const ctrl = e.ctrlKey || e.metaKey;
+
+  // ── Ctrl combos ──
+  if (ctrl) {
+    if (k === 'z' || k === 'Z') { e.preventDefault(); undoLast(); return; }
+    if (k === 'e' || k === 'E') { e.preventDefault(); exportOBJ(); return; }
+    return; // don't swallow other Ctrl combos
+  }
+
+  // ── Single-key shortcuts ──
+  switch (k) {
+
+    // Help panel
+    case '?':
+    case 'h':
+    case 'H':
+      toggleShortcutPanel();
+      break;
+
+    // Selection mode cycling
+    case 'Tab':
+      e.preventDefault();
+      { const modes = ['face','edge','vert'];
+        const next = modes[(modes.indexOf(state.selectionMode) + 1) % 3];
+        setSelectionMode(next); }
+      break;
+
+    case 'F1': e.preventDefault(); setSelectionMode('face'); break;
+    case 'F2': e.preventDefault(); setSelectionMode('edge'); break;
+    case 'F3': e.preventDefault(); setSelectionMode('vert'); break;
+
+    // UV operations
+    case 'u':
+    case 'U':
+      flipU();
+      break;
+
+    case 'v':
+    case 'V':
+      flipV();
+      break;
+
+    case 'r':
+    case 'R':
+      rotateUV90();
+      drawUVs();
+      break;
+
+    case 'n':
+    case 'N':
+      normaliseUVs();
+      break;
+
+    case 's':
+    case 'S':
+      separateByFace();
+      break;
+
+    case 'p':
+    case 'P':
+      if (state.faces.length > 0) showPackingPreview();
+      break;
+
+    case 'g':
+    case 'G':
+      if (e.shiftKey) {
+        snapUVsToGrid();
+      } else {
+        document.getElementById('btn-grid-toggle').click();
+      }
+      break;
+
+    // Selection
+    case 'a':
+    case 'A':
+      if (state.faces.length === 0) break;
+      if (state.selectionMode === 'face') {
+        if (state.selectedFaces.size === state.faces.length) state.selectedFaces.clear();
+        else state.faces.forEach((_, fi) => state.selectedFaces.add(fi));
+        updateSelection();
+      } else if (state.selectionMode === 'edge') {
+        const allEdges = [];
+        state.faces.forEach((face, fi) => {
+          face.uvIdx.forEach((_, i) => allEdges.push(`${fi}:${i}`));
+        });
+        if (state.selectedEdges.size === allEdges.length) state.selectedEdges.clear();
+        else allEdges.forEach(k2 => state.selectedEdges.add(k2));
+        updateSelectionStatus(); drawUVs();
+      } else if (state.selectionMode === 'vert') {
+        const allVerts = new Set();
+        state.faces.forEach(face => face.uvIdx.forEach(ui => allVerts.add(ui)));
+        if (state.selectedVerts.size === allVerts.size) state.selectedVerts.clear();
+        else allVerts.forEach(ui => state.selectedVerts.add(ui));
+        updateSelectionStatus(); drawUVs();
+      }
+      setStatus(state.selectionMode === 'face'
+        ? (state.selectedFaces.size > 0 ? `Selected all ${state.selectedFaces.size} faces` : 'Deselected all')
+        : `Select all ${state.selectionMode}s`);
+      break;
+
+    case 'Escape':
+      if (_fsPanel) { exitFullscreen(); break; }
+      state.selectedFaces.clear();
+      state.selectedEdges.clear();
+      state.selectedVerts.clear();
+      updateSelection();
+      updateSelectionStatus();
+      setStatus('Deselected all');
+      break;
+
+    // View — frame
+    case 'f':
+    case 'F':
+      if (e.shiftKey) {
+        state.selectedFaces.clear();
+        state.uvViewport = null;
+        updateSelection();
+        zoomToSelection();
+        setStatus('Fit all faces in view — Shift+F');
+      } else {
+        zoomToSelection();
+        zoomToSelectionUV();
+      }
+      break;
+
+    // Toggles
+    case 'w':
+    case 'W':
+      document.getElementById('btn-wireframe').click();
+      break;
+
+    case ' ':
+      if (e.shiftKey) {
+        e.preventDefault();
+        // Toggle fullscreen on whichever panel the mouse is over, defaulting to 3D
+        if (_fsPanel) exitFullscreen();
+        else enterFullscreen(viewport);
+      }
+      break;
+
+    case 't':
+    case 'T':
+      document.getElementById('btn-overlay-toggle').click();
+      break;
+
+    case 'x':
+    case 'X':
+      document.getElementById('btn-stretch').click();
+      break;
+
+    case 'e':
+    case 'E':
+      document.getElementById('btn-seam').click();
+      break;
+
+    case 'm':
+    case 'M':
+      document.getElementById('btn-normals').click();
+      break;
+
+    // ── Blender-style selection mode ──
+    // Works for qwerty row (key:'1','2','3') AND numpad (code:'Numpad1','Numpad2','Numpad3')
+    // Note: browsers report key:'1' for both — we use e.code to distinguish numpad if needed,
+    // but since both should do the same thing here, matching on key value alone is correct.
+    case '1':
+      if (!e.shiftKey) { setSelectionMode('vert'); setStatus('Vertex mode  ·  1'); }
+      else             { applyTheme('neon');       setStatus('Theme: Neon');       }
+      break;
+
+    case '2':
+      if (!e.shiftKey) { setSelectionMode('edge'); setStatus('Edge mode  ·  2'); }
+      else             { applyTheme('dark');       setStatus('Theme: Dark');      }
+      break;
+
+    case '3':
+      if (!e.shiftKey) { setSelectionMode('face'); setStatus('Face mode  ·  3'); }
+      else             { applyTheme('light');      setStatus('Theme: Light');     }
+      break;
+
+    // Shift+4 / Shift+5 for remaining themes (no conflict)
+    case '4': if (e.shiftKey) { applyTheme('retro');     setStatus('Theme: Retro');     } break;
+    case '5': if (e.shiftKey) { applyTheme('blueprint'); setStatus('Theme: Blueprint'); } break;
+
+    // Theme switching via Shift+symbol row (fallback for some keyboard layouts)
+    case '!': applyTheme('neon');      setStatus('Theme: Neon');      break;
+    case '@': applyTheme('dark');      setStatus('Theme: Dark');      break;
+    case '#': applyTheme('light');     setStatus('Theme: Light');     break;
+    case '$': applyTheme('retro');     setStatus('Theme: Retro');     break;
+    case '%': applyTheme('blueprint'); setStatus('Theme: Blueprint'); break;
+  }
+});
+
+// ─── Shortcut reference panel ───
+function buildShortcutPanel() {
+  if (document.getElementById('shortcut-panel')) return;
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'shortcut-panel';
+  Object.assign(backdrop.style, {
+    position: 'fixed', inset: '0', background: 'rgba(5,8,11,0.80)',
+    zIndex: '200', display: 'none', alignItems: 'center',
+    justifyContent: 'center', backdropFilter: 'blur(4px)',
+  });
+
+  const box = document.createElement('div');
+  Object.assign(box.style, {
+    background: 'var(--panel)', border: '1px solid var(--border)',
+    width: 'min(520px, 90vw)', maxHeight: '80vh', overflow: 'hidden',
+    display: 'flex', flexDirection: 'column',
+  });
+
+  // Header
+  const hdr = document.createElement('div');
+  Object.assign(hdr.style, {
+    display: 'flex', alignItems: 'center', gap: '10px',
+    padding: '12px 16px', borderBottom: '1px solid var(--border)',
+  });
+  hdr.innerHTML = `
+    <span style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;letter-spacing:3px;color:var(--accent);text-transform:uppercase">Keyboard Shortcuts</span>
+    <button id="shortcut-close" style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;text-transform:uppercase;letter-spacing:1px">✕ CLOSE</button>
+  `;
+  box.appendChild(hdr);
+
+  // Grid of shortcuts
+  const grid = document.createElement('div');
+  Object.assign(grid.style, {
+    display: 'grid', gridTemplateColumns: '1fr 1fr',
+    gap: '0', overflowY: 'auto', padding: '8px 0',
+  });
+  grid.style.cssText += 'scrollbar-width:thin;';
+
+  SHORTCUT_MAP.forEach(({ key, desc }) => {
+    const row = document.createElement('div');
+    Object.assign(row.style, {
+      display: 'contents',
+    });
+
+    const keyEl = document.createElement('div');
+    Object.assign(keyEl.style, {
+      padding: '7px 16px', borderBottom: '1px solid var(--border)',
+      fontSize: '11px', fontFamily: "'Share Tech Mono',monospace",
+      color: 'var(--accent)', letterSpacing: '1px',
+    });
+    keyEl.textContent = key;
+
+    const descEl = document.createElement('div');
+    Object.assign(descEl.style, {
+      padding: '7px 16px', borderBottom: '1px solid var(--border)',
+      fontSize: '11px', fontFamily: "'Share Tech Mono',monospace",
+      color: 'var(--muted)',
+    });
+    descEl.textContent = desc;
+
+    grid.appendChild(keyEl);
+    grid.appendChild(descEl);
+  });
+  box.appendChild(grid);
+
+  // Footer hint
+  const foot = document.createElement('div');
+  Object.assign(foot.style, {
+    padding: '8px 16px', borderTop: '1px solid var(--border)',
+    fontSize: '9px', color: 'var(--muted)', letterSpacing: '1px',
+  });
+  foot.textContent = 'Press ? or H to dismiss · Shortcuts disabled when typing in input fields';
+  box.appendChild(foot);
+
+  backdrop.appendChild(box);
+  document.body.appendChild(backdrop);
+
+  // Close handlers
+  document.getElementById('shortcut-close').addEventListener('click', toggleShortcutPanel);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) toggleShortcutPanel(); });
+}
+
+function toggleShortcutPanel() {
+  buildShortcutPanel();
+  const panel = document.getElementById('shortcut-panel');
+  const open = panel.style.display !== 'flex';
+  panel.style.display = open ? 'flex' : 'none';
+}
+
+// ? button in header to open shortcuts
+const shortcutBtn = document.createElement('button');
+shortcutBtn.className = 'btn';
+shortcutBtn.textContent = '? SHORTCUTS';
+shortcutBtn.style.fontSize = '10px';
+shortcutBtn.addEventListener('click', toggleShortcutPanel);
+document.querySelector('.header-btns').prepend(shortcutBtn);
+
+// ── UV canvas: scroll to zoom, middle-drag to pan ──
+uvCanvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = uvCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  // Get UV under cursor before zoom
+  const { size, ox, oy } = getUVSpaceParams();
+  const vp = state.uvViewport || { minU: 0, maxU: 1, minV: 0, maxV: 1 };
+  const rangeU = vp.maxU - vp.minU;
+  const rangeV = vp.maxV - vp.minV;
+  const pivotU = vp.minU + ((mx - ox) / size) * rangeU;
+  const pivotV = vp.minV + (1 - (my - oy) / size) * rangeV;
+
+  const zoomFactor = e.deltaY < 0 ? 0.8 : 1.25;
+  const newRangeU = Math.min(3, Math.max(0.05, rangeU * zoomFactor));
+  const newRangeV = Math.min(3, Math.max(0.05, rangeV * zoomFactor));
+
+  // Keep pivot point stationary
+  state.uvViewport = {
+    minU: pivotU - (pivotU - vp.minU) * (newRangeU / rangeU),
+    maxU: pivotU + (vp.maxU - pivotU) * (newRangeU / rangeU),
+    minV: pivotV - (pivotV - vp.minV) * (newRangeV / rangeV),
+    maxV: pivotV + (vp.maxV - pivotV) * (newRangeV / rangeV),
+  };
+  drawUVs();
+}, { passive: false });
+
+// Middle-mouse or Alt+drag to pan UV canvas
+const uvPan = { active: false, lastX: 0, lastY: 0 };
+
+uvCanvas.addEventListener('mousedown', e => {
+  if (e.button === 1 || (e.button === 0 && e.altKey)) {
+    uvPan.active = true;
+    uvPan.lastX = e.clientX;
+    uvPan.lastY = e.clientY;
+    uvCanvas.style.cursor = 'grabbing';
+    e.preventDefault();
+  }
+});
+
+window.addEventListener('mousemove', e => {
+  if (!uvPan.active) return;
+  const dx = e.clientX - uvPan.lastX;
+  const dy = e.clientY - uvPan.lastY;
+  uvPan.lastX = e.clientX;
+  uvPan.lastY = e.clientY;
+
+  const { size } = getUVSpaceParams();
+  const vp = state.uvViewport || { minU: 0, maxU: 1, minV: 0, maxV: 1 };
+  const rangeU = vp.maxU - vp.minU;
+  const rangeV = vp.maxV - vp.minV;
+  const du = -(dx / size) * rangeU;
+  const dv =  (dy / size) * rangeV;
+
+  state.uvViewport = {
+    minU: vp.minU + du, maxU: vp.maxU + du,
+    minV: vp.minV + dv, maxV: vp.maxV + dv,
+  };
+  drawUVs();
+});
+
+window.addEventListener('mouseup', e => {
+  if (uvPan.active) {
+    uvPan.active = false;
+    uvCanvas.style.cursor = 'crosshair';
+  }
+});
+
 // Initial draw
 resizeUVCanvas();
 drawUVs();
 </script>
+<!-- UV PACKING PREVIEW MODAL -->
+<div class="pack-modal-backdrop" id="pack-modal-backdrop">
+  <div class="pack-modal">
+    <div class="pack-modal-header">
+      <div class="pack-modal-title">UV Island Packing Preview</div>
+      <div style="font-size:10px;color:var(--muted);margin-left:4px">Review the repacked layout before committing</div>
+      <button class="btn" id="pack-close" style="margin-left:auto;padding:4px 10px;font-size:10px">✕ CLOSE</button>
+    </div>
+    <div class="pack-modal-body">
+      <!-- BEFORE -->
+      <div class="pack-panel">
+        <div class="pack-panel-label" style="color:var(--accent2)">
+          BEFORE <span class="badge" id="pack-before-badge">— overlaps</span>
+        </div>
+        <div class="pack-canvas-wrap">
+          <canvas id="pack-canvas-before"></canvas>
+        </div>
+      </div>
+      <!-- AFTER -->
+      <div class="pack-panel">
+        <div class="pack-panel-label" style="color:var(--accent3)">
+          AFTER <span class="badge" id="pack-after-badge">— packed</span>
+        </div>
+        <div class="pack-canvas-wrap">
+          <canvas id="pack-canvas-after"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="pack-modal-footer">
+      <div class="pack-stat" id="pack-stat">—</div>
+      <button class="btn" id="pack-cancel" style="border-color:var(--accent2);color:var(--accent2)">✕ CANCEL</button>
+      <button class="btn btn-success" id="pack-confirm" style="padding:6px 20px;font-size:11px">⚡ APPLY PACKING</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
