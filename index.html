@@ -1349,6 +1349,7 @@ canvas3d.addEventListener('mousedown', e => {
   if (e.button === 2) isPanning = true;
   lastMouse = { x: e.clientX, y: e.clientY };
   mouseDownPos = { x: e.clientX, y: e.clientY };
+  _mouseDownOnCanvas3d = true;
 });
 
 window.addEventListener('mousemove', e => {
@@ -1370,27 +1371,27 @@ window.addEventListener('mousemove', e => {
     target.addScaledVector(up, dy * 0.004 * spherical.r / 3);
   }
   updateCamera();
-  // Rebuild normal arrows when camera moves (facing direction changes with view angle)
   if (state.normalMode) buildNormalArrows();
 });
+
+let _mouseDownOnCanvas3d = false;
 
 window.addEventListener('mouseup', e => {
   const wasDragging = Math.abs(e.clientX - mouseDownPos.x) > CLICK_THRESHOLD ||
                       Math.abs(e.clientY - mouseDownPos.y) > CLICK_THRESHOLD;
 
-  if (e.button === 0 && !wasDragging && state.faces.length > 0) {
-    // It's a click — raycast to pick a face
+  // Only raycast into 3D if the mousedown originated on the 3D canvas
+  if (_mouseDownOnCanvas3d && e.button === 0 && !wasDragging && state.faces.length > 0) {
     const rect = canvas3d.getBoundingClientRect();
     const ndcX = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
     const ndcY = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
     raycaster.setFromCamera({ x: ndcX, y: ndcY }, camera);
 
-    // Only test the first (solid) mesh child
     const meshChild = meshGroup.children[0];
     if (meshChild) {
       const hits = raycaster.intersectObject(meshChild, false);
       if (hits.length > 0) {
-        const triIdx = hits[0].faceIndex; // triangle index in buffer geometry
+        const triIdx = hits[0].faceIndex;
         const faceIdx = faceTriMap[triIdx];
         if (faceIdx !== undefined) {
           if (e.shiftKey) {
@@ -1406,12 +1407,10 @@ window.addEventListener('mouseup', e => {
             }
           }
           updateSelection();
-          // Scroll face list item into view
           const listEl = document.querySelector(`.face-item[data-fi="${faceIdx}"]`);
           if (listEl) listEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
       } else if (!e.shiftKey) {
-        // Clicked empty space — deselect
         state.selectedFaces.clear();
         updateSelection();
       }
@@ -1420,6 +1419,7 @@ window.addEventListener('mouseup', e => {
 
   isOrbiting = false;
   isPanning = false;
+  _mouseDownOnCanvas3d = false;
 });
 canvas3d.addEventListener('wheel', e => {
   spherical.r = Math.max(0.5, Math.min(50, spherical.r + e.deltaY * 0.004));
@@ -4594,6 +4594,52 @@ window.addEventListener('mouseup', e => {
 // Initial draw
 resizeUVCanvas();
 drawUVs();
+
+// ═══════════════════════════════════════════════
+//  THEME SWITCHER
+// ═══════════════════════════════════════════════
+const THEME_BG_COLORS = {
+  neon:      0x070a0d,
+  dark:      0x111111,
+  light:     0xe8ecf2,
+  retro:     0x0a0700,
+  blueprint: 0x0b1e33,
+};
+
+function applyTheme(name) {
+  const root = document.documentElement;
+  if (name === 'neon') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', name);
+  }
+
+  // Update Three.js renderer background
+  renderer.setClearColor(THEME_BG_COLORS[name] || 0x070a0d, 1);
+
+  // Update swatch active state
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.t === name);
+  });
+
+  // Redraw UV canvas with new colours
+  drawUVs();
+
+  // Persist preference
+  try { localStorage.setItem('uvedit-theme', name); } catch(e) {}
+}
+
+// Wire swatch clicks
+document.querySelectorAll('.theme-swatch').forEach(swatch => {
+  swatch.addEventListener('click', () => applyTheme(swatch.dataset.t));
+});
+
+// Restore saved theme on load
+try {
+  const saved = localStorage.getItem('uvedit-theme');
+  if (saved && THEME_BG_COLORS[saved]) applyTheme(saved);
+} catch(e) {}
+
 </script>
 <!-- UV PACKING PREVIEW MODAL -->
 <div class="pack-modal-backdrop" id="pack-modal-backdrop">
